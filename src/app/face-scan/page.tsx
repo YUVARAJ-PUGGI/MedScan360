@@ -63,6 +63,7 @@ export default function FaceScanPage() {
   const [patientData, setPatientData] = useState<PatientData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [scanError, setScanError] = useState<string | null>(null);
+  const [noMatchFound, setNoMatchFound] = useState(false); // New state for no match
   const [showWebcam, setShowWebcam] = useState(true);
   const { toast } = useToast();
   const { patients: registeredPatients } = usePatientData(); // Get registered patients from context
@@ -73,6 +74,7 @@ export default function FaceScanPage() {
     setIsLoading(true);
     setPatientData(null);
     setScanError(null);
+    setNoMatchFound(false); // Reset noMatchFound state
 
     try {
       const data = await recognizeFaceAndFetchData(imageSrc, registeredPatients);
@@ -84,16 +86,16 @@ export default function FaceScanPage() {
           variant: "default",
         });
       } else {
-        setScanError("No matching patient record found in the system.");
+        setNoMatchFound(true); // Set noMatchFound to true if data is null
         toast({
           title: "No Match",
           description: "The scanned face did not match any registered patient records.",
-          variant: "destructive", // Changed from warning to destructive for clarity
+          variant: "default", // Changed from destructive to default for a non-error "no match"
         });
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "An unknown error occurred during face scan.";
-      setScanError(errorMessage);
+      setScanError(errorMessage); // Actual errors set scanError
       toast({
         title: "Scan Error",
         description: errorMessage,
@@ -109,6 +111,7 @@ export default function FaceScanPage() {
     setPatientData(null);
     setIsLoading(false);
     setScanError(null);
+    setNoMatchFound(false); // Reset noMatchFound state
     setShowWebcam(true);
   };
 
@@ -150,7 +153,7 @@ export default function FaceScanPage() {
             </div>
           )}
 
-          {scanError && !isLoading && !patientData && ( // Ensure patientData is null to show specific error messages
+          {scanError && !isLoading && ( // Display for actual scan errors
             <div className="p-4 bg-destructive/10 text-destructive rounded-md text-center space-y-3">
                <ServerCrash className="h-10 w-10 mx-auto mb-2" />
               <p className="text-xl font-semibold">Scan Failed</p>
@@ -158,15 +161,7 @@ export default function FaceScanPage() {
             </div>
           )}
           
-          {patientData && !isLoading && (
-            <div className="p-4 bg-green-500/10 text-green-700 dark:text-green-400 rounded-md text-center space-y-3">
-              <UserCheck className="h-10 w-10 mx-auto mb-2 text-green-600 dark:text-green-500" />
-              <p className="text-xl font-semibold">Patient Identified!</p>
-              <EmergencyDisplay patient={patientData} />
-            </div>
-          )}
-
-          {!patientData && !isLoading && !showWebcam && !scanError && ( // Condition when no match but no error
+          {noMatchFound && !isLoading && !patientData && !scanError && ( // Display for "No Match Found"
              <div className="p-4 bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 rounded-md text-center space-y-3">
                 <UserX className="h-10 w-10 mx-auto mb-2 text-yellow-600 dark:text-yellow-500" />
                 <p className="text-xl font-semibold">No Match Found</p>
@@ -174,7 +169,15 @@ export default function FaceScanPage() {
             </div>
           )}
 
-          {(!showWebcam || scanError || (patientData && !isLoading) || (!patientData && !isLoading && !showWebcam)) && ( // Show reset button more broadly
+          {patientData && !isLoading && ( // Display for successful patient identification
+            <div className="p-4 bg-green-500/10 text-green-700 dark:text-green-400 rounded-md text-center space-y-3">
+              <UserCheck className="h-10 w-10 mx-auto mb-2 text-green-600 dark:text-green-500" />
+              <p className="text-xl font-semibold">Patient Identified!</p>
+              <EmergencyDisplay patient={patientData} />
+            </div>
+          )}
+
+          {(!showWebcam || scanError || noMatchFound || (patientData && !isLoading)) && ( // Adjusted condition for reset button
             <Button onClick={resetScan} variant="outline" className="w-full">
               Scan Another Face
             </Button>
