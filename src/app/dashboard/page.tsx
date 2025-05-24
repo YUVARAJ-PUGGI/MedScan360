@@ -1,21 +1,46 @@
+
+"use client"; // Required because we're using hooks like useState and useContext
+
+import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PatientList } from "@/components/dashboard/patient-list";
 import { LocationMap } from "@/components/dashboard/location-map";
 import { PatientDetailsView } from "@/components/dashboard/patient-details-view";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LayoutDashboard, ListChecks, Map, UserCog } from "lucide-react";
-
-// Mock patient data for the dashboard
-const mockIncomingPatients = [
-  { id: 'p1', name: 'John Smith', age: 45, condition: 'Chest Pains', eta: '5 mins', location: { lat: 34.0522, lng: -118.2437 } },
-  { id: 'p2', name: 'Alice Johnson', age: 28, condition: 'Minor Lacerations', eta: '12 mins', location: { lat: 34.0550, lng: -118.2400 } },
-  { id: 'p3', name: 'Robert Brown', age: 62, condition: 'Difficulty Breathing', eta: '8 mins', location: { lat: 34.0500, lng: -118.2450 } },
-];
+import { usePatientData } from '@/context/PatientDataContext'; // Import context hook
+import type { PatientData } from '@/lib/schemas';
 
 export default function DashboardPage() {
-  // In a real app, patientId would come from selection in PatientList
-  // For now, we can pick the first patient or leave it null.
-  const selectedPatientForDetails = mockIncomingPatients[0] || null;
+  const { patients, getPatientById } = usePatientData(); // Get patients from context
+  const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
+  const [selectedPatientForDetails, setSelectedPatientForDetails] = useState<PatientData | null>(null);
+
+  // Effect to set initial selected patient or update when patients list changes
+  useEffect(() => {
+    if (!selectedPatientId && patients.length > 0) {
+      setSelectedPatientId(patients[0].id);
+    } else if (selectedPatientId && !patients.find(p => p.id === selectedPatientId) && patients.length > 0) {
+      // If current selected patient is no longer in the list (e.g. data reset), select first
+      setSelectedPatientId(patients[0].id);
+    } else if (patients.length === 0) {
+      setSelectedPatientId(null); // No patients, no selection
+    }
+  }, [patients, selectedPatientId]);
+
+  // Effect to update details view when selectedPatientId changes
+  useEffect(() => {
+    if (selectedPatientId) {
+      const patient = getPatientById(selectedPatientId);
+      setSelectedPatientForDetails(patient || null);
+    } else {
+      setSelectedPatientForDetails(null);
+    }
+  }, [selectedPatientId, getPatientById]);
+
+  const handleSelectPatient = (patientId: string) => {
+    setSelectedPatientId(patientId);
+  };
 
   return (
     <div className="container mx-auto py-8 space-y-8">
@@ -26,7 +51,7 @@ export default function DashboardPage() {
             <CardTitle className="text-3xl">Doctor Dashboard</CardTitle>
           </div>
           <CardDescription className="text-md">
-            Overview of incoming patients, live locations, and patient management tools.
+            Overview of registered patients, live locations (if available), and patient management tools.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -47,16 +72,22 @@ export default function DashboardPage() {
         <TabsContent value="overview" className="mt-6">
           <div className="grid lg:grid-cols-3 gap-6">
             <div className="lg:col-span-1">
-              <PatientList patients={mockIncomingPatients} />
+              <PatientList 
+                patients={patients} 
+                onSelectPatient={handleSelectPatient} 
+                selectedPatientId={selectedPatientId}
+              />
             </div>
-            <div className="lg:col-span-2 hidden md:block"> {/* Hide on mobile, show on md+ */}
+            <div className="lg:col-span-2 hidden md:block">
               <PatientDetailsView patient={selectedPatientForDetails} />
             </div>
           </div>
         </TabsContent>
 
         <TabsContent value="map" className="mt-6">
-          <LocationMap initialPatients={mockIncomingPatients} />
+          {/* LocationMap can be enhanced to take dynamic patient data if they have locations */}
+          {/* For now, it might show a default state or specific tracked vehicles */}
+          <LocationMap initialPatients={[]} /> 
         </TabsContent>
         
         <TabsContent value="details" className="mt-6 md:hidden"> {/* Show only on mobile */}

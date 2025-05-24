@@ -5,7 +5,7 @@ import type { ChangeEvent } from 'react';
 import { useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { patientRegistrationSchema, type PatientRegistrationFormData } from '@/lib/schemas';
+import { patientRegistrationSchema, type PatientRegistrationFormData, type PatientData } from '@/lib/schemas';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -16,27 +16,30 @@ import { useToast } from '@/hooks/use-toast';
 import { Camera, FileImage, Loader2 } from 'lucide-react';
 import WebcamCapture from '@/components/core/webcam-capture';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { usePatientData } from '@/context/PatientDataContext'; // Import usePatientData
 
 const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
 export function PatientRegistrationForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [facialImageFile, setFacialImageFile] = useState<File | null>(null);
+  const [facialImageFile, setFacialImageFile] = useState<File | null>(null); // Keep for potential direct upload
   const [facialImagePreview, setFacialImagePreview] = useState<string | null>(null);
   const [showWebcam, setShowWebcam] = useState(false);
   const { toast } = useToast();
+  const { addPatient } = usePatientData(); // Get addPatient function from context
 
   const form = useForm<PatientRegistrationFormData>({
     resolver: zodResolver(patientRegistrationSchema),
     defaultValues: {
       name: '',
-      age: '' as unknown as number, // Changed from undefined to prevent uncontrolled to controlled error
+      age: '' as unknown as number,
       gender: undefined,
       bloodGroup: '',
       allergies: '',
       medicalConditions: '',
       emergencyContactName: '',
       emergencyContactPhone: '',
+      facialImagePreview: '', // Added for storing data URL
     },
   });
 
@@ -44,39 +47,51 @@ export function PatientRegistrationForm() {
     const file = event.target.files?.[0];
     if (file) {
       setFacialImageFile(file);
-      setFacialImagePreview(URL.createObjectURL(file));
-      form.setValue('facialImage', file); // For RHF to know a file is selected
+      const previewUrl = URL.createObjectURL(file);
+      setFacialImagePreview(previewUrl);
+      form.setValue('facialImagePreview', previewUrl); 
     }
   };
 
   const handleWebcamCapture = (imageSrc: string) => {
-    fetch(imageSrc)
-      .then(res => res.blob())
-      .then(blob => {
-        const file = new File([blob], "webcam-capture.png", { type: "image/png" });
-        setFacialImageFile(file);
-        setFacialImagePreview(imageSrc);
-        form.setValue('facialImage', file);
-        setShowWebcam(false);
-      });
+    // Convert data URL to blob then to file if needed, or just store data URL
+    setFacialImagePreview(imageSrc);
+    form.setValue('facialImagePreview', imageSrc);
+    // Optionally convert to file if backend expects file object
+    // fetch(imageSrc).then(res => res.blob()).then(blob => {
+    //   const file = new File([blob], "webcam-capture.png", { type: "image/png" });
+    //   setFacialImageFile(file);
+    // });
+    setShowWebcam(false);
   };
 
   async function onSubmit(data: PatientRegistrationFormData) {
     setIsSubmitting(true);
-    console.log("Patient Data:", data);
-    console.log("Facial Image File:", facialImageFile);
-
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-    // In a real app, you would upload facialImageFile to storage
-    // and save 'data' (with image URL) to Firestore.
     
+    const newPatient: PatientData = {
+      id: `patient-${Date.now()}`, // Generate a unique ID
+      name: data.name,
+      age: Number(data.age),
+      gender: data.gender!, // Assuming gender is always selected due to schema
+      bloodGroup: data.bloodGroup,
+      allergies: data.allergies || '',
+      medicalConditions: data.medicalConditions || '',
+      emergencyContactName: data.emergencyContactName,
+      emergencyContactPhone: data.emergencyContactPhone,
+      faceImageUrl: data.facialImagePreview || 'https://placehold.co/100x100.png', // Use preview or placeholder
+    };
+
+    // Simulate API call before adding to context
+    await new Promise(resolve => setTimeout(resolve, 500)); 
+    
+    addPatient(newPatient); // Add patient to context
+
     toast({
       title: "Registration Successful",
-      description: `${data.name} has been registered.`,
+      description: `${data.name} has been registered. Patient ID: ${newPatient.id}`,
       variant: "default",
     });
+    
     form.reset();
     setFacialImageFile(null);
     setFacialImagePreview(null);
@@ -107,7 +122,7 @@ export function PatientRegistrationForm() {
               <FormItem>
                 <FormLabel>Age *</FormLabel>
                 <FormControl>
-                  <Input type="number" placeholder="30" {...field} />
+                  <Input type="number" placeholder="30" {...field} onChange={e => field.onChange(parseInt(e.target.value,10) || '')} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -222,8 +237,8 @@ export function PatientRegistrationForm() {
         <h3 className="text-lg font-semibold pt-4 border-t">Facial Image</h3>
         <FormField
           control={form.control}
-          name="facialImage"
-          render={() => ( // We handle file input manually, not directly via RHF field
+          name="facialImagePreview" // Storing the preview URL
+          render={() => ( 
             <FormItem>
               <FormLabel>Upload Facial Image (Optional)</FormLabel>
               <FormControl>
@@ -250,7 +265,7 @@ export function PatientRegistrationForm() {
                   <img src={facialImagePreview} alt="Facial preview" className="w-32 h-32 rounded-md object-cover border" />
                 </div>
               )}
-              <FormMessage /> {/* For any general error on facialImage field */}
+              <FormMessage /> 
             </FormItem>
           )}
         />

@@ -1,8 +1,9 @@
+
 "use client";
 
 import { useEffect, useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { MapPin, Loader2, WifiOff, Users } from 'lucide-react';
+import { MapPin, Loader2, WifiOff, Users, Info } from 'lucide-react'; // Added Info
 import { useToast } from '@/hooks/use-toast';
 
 interface PatientLocation {
@@ -13,23 +14,26 @@ interface PatientLocation {
 }
 
 interface LocationMapProps {
-  initialPatients?: PatientLocation[];
+  initialPatients?: PatientLocation[]; // Made optional
 }
 
-export function LocationMap({ initialPatients = [] }: LocationMapProps) {
+export function LocationMap({ initialPatients }: LocationMapProps) {
   const [currentCoords, setCurrentCoords] = useState<{ lat: number; lng: number } | null>(null);
-  const [trackedPatients, setTrackedPatients] = useState<PatientLocation[]>(initialPatients);
+  const [trackedPatients, setTrackedPatients] = useState<PatientLocation[]>(initialPatients || []);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const mapRef = useRef<HTMLDivElement>(null); // For potential map library integration
+  const mapRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
   useEffect(() => {
-    // Simulate fetching initial patient locations if not provided or needing update
-    // For now, we use initialPatients directly.
-    setIsLoading(false); 
+    setIsLoading(true);
+    if (initialPatients && initialPatients.length > 0) {
+        setTrackedPatients(initialPatients);
+    } else {
+        setTrackedPatients([]);
+    }
+    setIsLoading(false);
 
-    // Get this device's (e.g., hospital's) location if needed
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -41,43 +45,51 @@ export function LocationMap({ initialPatients = [] }: LocationMapProps) {
         },
         (err) => {
           console.warn(`Error getting current location: ${err.message}`);
-          setError(`Could not get current location: ${err.message}. Map features might be limited.`);
+          setError(`Could not get current location: ${err.message}.`);
           toast({ title: "Location Error", description: err.message, variant: "destructive"});
         }
       );
     } else {
-      setError("Geolocation is not supported by this browser.");
-      toast({ title: "Location Error", description: "Geolocation not supported.", variant: "destructive"});
+      const noGeoLocationMsg = "Geolocation is not supported by this browser.";
+      setError(noGeoLocationMsg);
+      toast({ title: "Location Error", description: noGeoLocationMsg, variant: "destructive"});
     }
+  }, [initialPatients, toast]);
 
-    // Simulate real-time updates for patient locations (e.g., from Firebase)
-    const intervalId = setInterval(() => {
-      setTrackedPatients(prevPatients => 
-        prevPatients.map(p => ({
-          ...p,
-          location: {
-            lat: p.location.lat + (Math.random() - 0.5) * 0.001, // Simulate movement
-            lng: p.location.lng + (Math.random() - 0.5) * 0.001,
-          }
-        }))
-      );
-    }, 5000); // Update every 5 seconds
+  // Simulate real-time updates only if there are initial patients to track
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout | null = null;
+    if (trackedPatients.length > 0) {
+      intervalId = setInterval(() => {
+        setTrackedPatients(prevPatients => 
+          prevPatients.map(p => ({
+            ...p,
+            location: {
+              lat: p.location.lat + (Math.random() - 0.5) * 0.001,
+              lng: p.location.lng + (Math.random() - 0.5) * 0.001,
+            }
+          }))
+        );
+      }, 5000);
+    }
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [trackedPatients]);
 
-    return () => clearInterval(intervalId);
-  }, [toast]);
-
-  // Placeholder for Google Maps rendering
-  // In a real app, you'd initialize Google Maps SDK here using mapRef.current
-  // and add markers for trackedPatients.
 
   return (
-    <Card className="h-[600px] flex flex-col shadow-md"> {/* Ensure fixed height for map area */}
+    <Card className="h-[600px] flex flex-col shadow-md">
       <CardHeader>
         <div className="flex items-center gap-2">
           <MapPin className="h-6 w-6 text-primary" />
           <CardTitle>Live Ambulance Locations</CardTitle>
         </div>
-        <CardDescription>Real-time tracking of incoming emergency vehicles.</CardDescription>
+        <CardDescription>
+          {trackedPatients.length > 0 
+            ? "Real-time tracking of incoming emergency vehicles."
+            : "No live vehicle tracking data available currently."}
+        </CardDescription>
       </CardHeader>
       <CardContent className="flex-grow relative p-0">
         {isLoading ? (
@@ -93,7 +105,6 @@ export function LocationMap({ initialPatients = [] }: LocationMapProps) {
           </div>
         ) : (
           <div ref={mapRef} className="w-full h-full bg-muted rounded-b-lg">
-            {/* This div would be the Google Maps container */}
             <div className="p-4 h-full flex flex-col items-center justify-center">
               <MapPin className="h-16 w-16 text-primary/50 mb-4" />
               <p className="text-xl font-semibold text-muted-foreground">Map Area</p>
@@ -103,14 +114,20 @@ export function LocationMap({ initialPatients = [] }: LocationMapProps) {
                   Your Location: Lat: {currentCoords.lat.toFixed(4)}, Lng: {currentCoords.lng.toFixed(4)}
                 </p>
               )}
-              {trackedPatients.length > 0 && (
+              {trackedPatients.length > 0 ? (
                 <div className="mt-4 p-3 bg-background/70 rounded-md shadow max-h-40 overflow-y-auto w-full max-w-md">
-                  <h4 className="font-semibold text-sm mb-1 flex items-center"><Users className="h-4 w-4 mr-1.5"/>Tracked Patients:</h4>
+                  <h4 className="font-semibold text-sm mb-1 flex items-center"><Users className="h-4 w-4 mr-1.5"/>Tracked Vehicles:</h4>
                   <ul className="text-xs space-y-0.5">
                     {trackedPatients.map(p => (
                       <li key={p.id}>{p.name}: Lat {p.location.lat.toFixed(3)}, Lng {p.location.lng.toFixed(3)}</li>
                     ))}
                   </ul>
+                </div>
+              ) : (
+                <div className="mt-4 p-3 bg-background/70 rounded-md shadow w-full max-w-md text-center">
+                  <Info className="h-6 w-6 mx-auto mb-2 text-primary"/>
+                  <p className="text-sm text-muted-foreground">No vehicles are currently being tracked live.</p>
+                  <p className="text-xs text-muted-foreground">This map displays live ambulance locations when available.</p>
                 </div>
               )}
             </div>
