@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -9,31 +10,51 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Loader2, ScanFace, ServerCrash, UserCheck, UserX } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
+import { usePatientData } from '@/context/PatientDataContext'; // Import usePatientData
 
-// Mock function to simulate API call
-async function recognizeFaceAPI(imageDataUrl: string): Promise<PatientData | null> {
-  console.log("Sending image data (first 50 chars):", imageDataUrl.substring(0, 50));
-  await new Promise(resolve => setTimeout(resolve, 2500)); // Simulate network latency
+// Mock function to simulate face recognition against registered patients
+async function recognizeFaceAndFetchData(
+  imageDataUrl: string,
+  allPatients: PatientData[]
+): Promise<PatientData | null> {
+  console.log("Simulating face recognition for image (first 50 chars):", imageDataUrl.substring(0, 50));
+  console.log("Matching against registered patients:", allPatients.map(p => p.id));
+  await new Promise(resolve => setTimeout(resolve, 2500)); // Simulate network latency & recognition processing
+
+  if (allPatients.length === 0) {
+    console.log("No registered patients to match against.");
+    return null;
+  }
 
   // Simulate different outcomes
   const randomOutcome = Math.random();
-  if (randomOutcome < 0.6) { // 60% chance of match
-    return {
-      id: `patient-${Date.now()}`,
-      name: 'Jane Doe (Recognized)',
-      age: 34,
-      gender: 'Female',
-      bloodGroup: 'O+',
-      allergies: 'Penicillin, Bee stings',
-      medicalConditions: 'Asthma, Hypertension',
-      emergencyContactName: 'John Doe',
-      emergencyContactPhone: '+19876543210',
-      faceImageUrl: 'https://placehold.co/100x100.png', // Placeholder for actual image if available
-    };
-  } else if (randomOutcome < 0.85) { // 25% chance of no match
+
+  if (randomOutcome < 0.7 && allPatients.length > 0) { // 70% chance of match if patients exist
+    const randomIndex = Math.floor(Math.random() * allPatients.length);
+    const matchedPatient = allPatients[randomIndex];
+    
+    console.log(`SIMULATED MATCH: Matched with patient ${matchedPatient.name} (ID: ${matchedPatient.id})`);
+    
+    // ---- SIMULATE FIREBASE INTEGRATION ----
+    // In a real application, you would use the Firebase SDK here to:
+    // 1. Potentially log this identification event to Firestore/Realtime Database.
+    //    Example: addDoc(collection(db, "identificationEvents"), { 
+    //               patientId: matchedPatient.id, 
+    //               timestamp: serverTimestamp(), // Firestore server timestamp
+    //               method: "face-scan",
+    //               imageDataUrlSnapshot: imageDataUrl.substring(0, 100) // Optional: a small snapshot or reference
+    //            });
+    // 2. Or, if the patient data itself is primarily in Firebase, this step might involve
+    //    confirming the patient exists and fetching their most up-to-date record from Firebase.
+    console.log(`SIMULATING: Storing identification event for patient ${matchedPatient.id} to Firebase.`);
+    // For this simulation, we return the patient data from context directly.
+    return { ...matchedPatient, name: `${matchedPatient.name}` }; // Return a copy
+  } else if (randomOutcome < 0.9) { // 20% chance of no match
+    console.log("SIMULATED: No matching patient record found among registered patients.");
     return null;
-  } else { // 15% chance of API error
-    throw new Error("Simulated API error: Could not connect to recognition service.");
+  } else { // 10% chance of a simulated API/recognition error
+    console.log("SIMULATED: Error during face recognition process.");
+    throw new Error("Simulated face recognition service error.");
   }
 }
 
@@ -44,6 +65,7 @@ export default function FaceScanPage() {
   const [scanError, setScanError] = useState<string | null>(null);
   const [showWebcam, setShowWebcam] = useState(true);
   const { toast } = useToast();
+  const { patients: registeredPatients } = usePatientData(); // Get registered patients from context
 
   const handleCapture = async (imageSrc: string) => {
     setCapturedImage(imageSrc);
@@ -53,20 +75,20 @@ export default function FaceScanPage() {
     setScanError(null);
 
     try {
-      const data = await recognizeFaceAPI(imageSrc);
+      const data = await recognizeFaceAndFetchData(imageSrc, registeredPatients);
       if (data) {
         setPatientData(data);
         toast({
           title: "Patient Identified",
-          description: `${data.name} recognized successfully.`,
+          description: `${data.name} recognized. Identification event simulated as logged to Firebase.`,
           variant: "default",
         });
       } else {
-        setScanError("No matching patient record found.");
+        setScanError("No matching patient record found in the system.");
         toast({
           title: "No Match",
-          description: "The scanned face did not match any patient records.",
-          variant: "destructive",
+          description: "The scanned face did not match any registered patient records.",
+          variant: "destructive", // Changed from warning to destructive for clarity
         });
       }
     } catch (error) {
@@ -99,7 +121,7 @@ export default function FaceScanPage() {
             <CardTitle className="text-3xl">Emergency Face Scan</CardTitle>
           </div>
           <CardDescription className="text-md">
-            Use the webcam to capture a facial image for patient identification.
+            Use the webcam to capture a facial image for patient identification against registered records.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -128,7 +150,7 @@ export default function FaceScanPage() {
             </div>
           )}
 
-          {scanError && !isLoading && (
+          {scanError && !isLoading && !patientData && ( // Ensure patientData is null to show specific error messages
             <div className="p-4 bg-destructive/10 text-destructive rounded-md text-center space-y-3">
                <ServerCrash className="h-10 w-10 mx-auto mb-2" />
               <p className="text-xl font-semibold">Scan Failed</p>
@@ -144,7 +166,7 @@ export default function FaceScanPage() {
             </div>
           )}
 
-          {!patientData && !isLoading && !showWebcam && !scanError && (
+          {!patientData && !isLoading && !showWebcam && !scanError && ( // Condition when no match but no error
              <div className="p-4 bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 rounded-md text-center space-y-3">
                 <UserX className="h-10 w-10 mx-auto mb-2 text-yellow-600 dark:text-yellow-500" />
                 <p className="text-xl font-semibold">No Match Found</p>
@@ -152,7 +174,7 @@ export default function FaceScanPage() {
             </div>
           )}
 
-          {(!showWebcam || scanError) && (
+          {(!showWebcam || scanError || (patientData && !isLoading) || (!patientData && !isLoading && !showWebcam)) && ( // Show reset button more broadly
             <Button onClick={resetScan} variant="outline" className="w-full">
               Scan Another Face
             </Button>
