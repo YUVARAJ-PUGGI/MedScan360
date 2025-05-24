@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { ChangeEvent } from 'react';
@@ -29,7 +30,7 @@ export function PatientRegistrationForm() {
     resolver: zodResolver(patientRegistrationSchema),
     defaultValues: {
       name: '',
-      age: undefined,
+      age: '' as unknown as number, // Changed from undefined to prevent uncontrolled to controlled error
       gender: undefined,
       bloodGroup: '',
       allergies: '',
