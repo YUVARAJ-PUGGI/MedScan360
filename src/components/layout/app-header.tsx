@@ -8,6 +8,7 @@ import { Menu, Hospital, Home, UserPlus, ScanFace, LayoutDashboard, Navigation, 
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext'; 
+import { ThemeToggleButton } from './theme-toggle-button'; // Import the new component
 
 const loggedOutNavItems = [
   { href: '/', label: 'Home', icon: Home },
@@ -36,39 +37,43 @@ export function AppHeader() {
           <span>PulsePoint</span>
         </Link>
         
-        <nav className="hidden md:flex items-center space-x-1 lg:space-x-2">
-          {currentNavItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "text-sm font-medium transition-colors hover:text-primary px-3 py-2 rounded-md",
-                pathname === item.href ? "text-primary bg-primary/10" : "text-muted-foreground"
-              )}
-            >
-              {item.label}
-            </Link>
-          ))}
-          {isLoggedIn ? (
-            <Button variant="outline" size="sm" onClick={logout} className="ml-2">
-              <LogOut className="mr-2 h-4 w-4" /> Logout
-            </Button>
-          ) : (
-            <>
-              <Button variant="outline" size="sm" asChild className="ml-2">
-                <Link href="/register"><UserPlus className="mr-2 h-4 w-4" />Sign Up</Link>
+        <div className="flex items-center"> {/* Wrapper for nav and theme toggle */}
+          <nav className="hidden md:flex items-center space-x-1 lg:space-x-2">
+            {currentNavItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "text-sm font-medium transition-colors hover:text-primary px-3 py-2 rounded-md",
+                  pathname === item.href ? "text-primary bg-primary/10" : "text-muted-foreground"
+                )}
+              >
+                {item.label}
+              </Link>
+            ))}
+            {isLoggedIn ? (
+              <Button variant="outline" size="sm" onClick={logout} className="ml-2">
+                <LogOut className="mr-2 h-4 w-4" /> Logout
               </Button>
-              <Button size="sm" onClick={login}>
-                <LogIn className="mr-2 h-4 w-4" /> Login
-              </Button>
-            </>
-          )}
-        </nav>
+            ) : (
+              <>
+                <Button variant="outline" size="sm" asChild className="ml-2">
+                  <Link href="/register"><UserPlus className="mr-2 h-4 w-4" />Sign Up</Link>
+                </Button>
+                <Button size="sm" onClick={login}>
+                  <LogIn className="mr-2 h-4 w-4" /> Login
+                </Button>
+              </>
+            )}
+          </nav>
+          <ThemeToggleButton /> {/* Added theme toggle button for desktop */}
+        </div>
 
-        <div className="md:hidden">
+        <div className="md:hidden flex items-center"> {/* Wrapper for mobile menu and theme toggle */}
+          <ThemeToggleButton /> {/* Added theme toggle button for mobile */}
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="outline" size="icon">
+              <Button variant="outline" size="icon" className="ml-2"> {/* Added ml-2 for spacing */}
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Open menu</span>
               </Button>
