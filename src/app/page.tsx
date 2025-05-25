@@ -38,15 +38,8 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="py-20 md:py-32 bg-gradient-to-r from-primary via-accent to-secondary text-primary-foreground">
         <div className="container mx-auto px-6 text-center">
-          <Image 
-            src="https://placehold.co/150x150.png?text=MS" 
-            alt="MedScan360 Logo" 
-            width={120} 
-            height={120} 
-            className="mx-auto mb-8 rounded-full shadow-2xl border-4 border-white/80"
-            data-ai-hint="medical logo"
-          />
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
+          {/* Logo removed from here */}
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 pt-8"> {/* Added pt-8 for spacing if logo was tall */}
             Welcome to MedScan360
           </h1>
           <p className="text-lg md:text-xl lg:text-2xl text-primary-foreground/90 max-w-3xl mx-auto mb-10">
