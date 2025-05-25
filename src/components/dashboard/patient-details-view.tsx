@@ -5,9 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { type PatientData } from '@/lib/schemas'; 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { FileDown, Edit3, UserCog, AlertTriangle, Droplet, HeartPulse, Phone, Archive, UserCircle } from 'lucide-react';
+import { FileDown, Edit3, UserCog, AlertTriangle, Droplet, HeartPulse, Phone, Archive, UserCircle, Ticket } from 'lucide-react';
 import jsPDF from 'jspdf'; 
 import { useToast } from '@/hooks/use-toast';
+import Link from 'next/link';
 // import { useEffect, useState } from 'react'; // Kept for potential future async history loading
 
 interface PatientDetailsViewProps {
@@ -95,21 +96,20 @@ export function PatientDetailsView({ patient }: PatientDetailsViewProps) {
         <InfoBlock icon={AlertTriangle} title="Allergies" value={patient.allergies || 'None reported'} isCritical={!!patient.allergies && patient.allergies !== 'None reported'} />
         <InfoBlock icon={HeartPulse} title="Medical Conditions" value={patient.medicalConditions || 'None reported'} isCritical={!!patient.medicalConditions && patient.medicalConditions !== 'None reported'} />
 
-        <div className="pt-4 border-t">
-          <h4 className="font-semibold mb-2 flex items-center text-lg"><Archive className="w-5 h-5 mr-2 text-primary"/>Medical History & Forms</h4>
-          <div className="space-y-2">
-            <div className="p-3 border rounded-md bg-muted/50 flex justify-between items-center">
-              <div>
-                <p className="font-medium">Patient Data Summary</p>
-                <p className="text-xs text-muted-foreground">Generated: {new Date().toLocaleDateString()}</p>
-              </div>
-              <Button variant="ghost" size="sm" onClick={() => handleDownloadReport('Patient_Data')}>
-                <FileDown className="h-4 w-4 mr-1" /> Download PDF
-              </Button>
-            </div>
-             {/* Add more form/history items here as data becomes available */}
-             <p className="text-sm text-center text-muted-foreground py-2">Further history integration (e.g., admission forms) pending.</p>
-          </div>
+        <div className="pt-4 border-t space-y-3">
+          <h4 className="font-semibold text-lg flex items-center"><Archive className="w-5 h-5 mr-2 text-primary"/>Actions & Reports</h4>
+          
+          <Button variant="outline" className="w-full justify-start" onClick={() => handleDownloadReport('Patient_Data_Summary')}>
+            <FileDown className="h-4 w-4 mr-2" /> Download Patient Summary PDF
+          </Button>
+
+          <Button asChild variant="outline" className="w-full justify-start">
+            <Link href={`/opd-slip/${patient.id}`}>
+              <Ticket className="h-4 w-4 mr-2" /> Generate OPD Slip
+            </Link>
+          </Button>
+          
+          <p className="text-sm text-center text-muted-foreground py-2">Further history integration (e.g., admission forms) pending.</p>
         </div>
       </CardContent>
     </Card>
@@ -133,3 +133,4 @@ const InfoBlock: React.FC<InfoBlockProps> = ({ icon: Icon, title, value, classNa
     <p className={`text-base break-words ${isCritical ? 'font-semibold' : 'text-foreground'} ${className}`}>{value}</p>
   </div>
 );
+

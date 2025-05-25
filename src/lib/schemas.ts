@@ -41,6 +41,25 @@ export interface PatientData {
   emergencyContactName: string;
   emergencyContactPhone: string;
   faceImageUrl?: string; // URL to stored image (data URL or actual URL)
-  // Fields like 'eta' or live 'location' are not part of registration
-  // and would typically come from a different source (e.g. ambulance tracking system)
 }
+
+// OPD Slip Data
+export const OpdSlipDataSchema = z.object({
+  id: z.string().describe("Unique ID for this OPD slip instance."),
+  patientId: z.string().describe("ID of the patient for whom the slip is generated."),
+  patientName: z.string().describe("Name of the patient."),
+  patientAge: z.number().describe("Age of the patient."),
+  patientGender: z.string().describe("Gender of the patient."),
+  tokenNumber: z.string().describe("Unique token number for the OPD visit."),
+  slipDate: z.string().datetime().describe("Date and time the slip was generated (ISO string)."),
+  department: z.string().optional().describe("Department for consultation (e.g., General Medicine)."),
+  doctorName: z.string().optional().describe("Assigned doctor's name (if applicable)."),
+  // Add any other relevant fields like fees, etc.
+});
+export type OpdSlipData = z.infer<typeof OpdSlipDataSchema>;
+
+// Input for generating OPD slip
+export const GenerateOpdSlipInputSchema = z.object({
+  patient: patientRegistrationSchema.extend({ id: z.string() }) // Use PatientData structure
+});
+export type GenerateOpdSlipInput = z.infer<typeof GenerateOpdSlipInputSchema>;
