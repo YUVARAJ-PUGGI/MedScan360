@@ -4,43 +4,65 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, Hospital, Home, UserPlus, ScanFace, LayoutDashboard, Navigation } from 'lucide-react'; // Added Navigation
+import { Menu, Hospital, Home, UserPlus, ScanFace, LayoutDashboard, Navigation, LogIn, LogOut } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/context/AuthContext'; 
 
-const navItems = [
+const loggedOutNavItems = [
   { href: '/', label: 'Home', icon: Home },
+];
+
+const loggedInNavItems = [
+  // Home is implicitly covered by the logo link to dashboard for logged-in users
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/register', label: 'Register Patient', icon: UserPlus },
   { href: '/face-scan', label: 'Face Scan', icon: ScanFace },
-  { href: '/dashboard', label: 'Doctor Dashboard', icon: LayoutDashboard },
-  { href: '/live-location', label: 'Live Location', icon: Navigation }, // Added Live Location
-  // Emergency form might be accessed via patient context, not direct nav
+  { href: '/live-location', label: 'Live Location', icon: Navigation },
 ];
 
 export function AppHeader() {
   const pathname = usePathname();
+  const { isLoggedIn, login, logout } = useAuth(); 
+
+  const currentNavItems = isLoggedIn ? loggedInNavItems : loggedOutNavItems;
+  const mainSiteNameLink = isLoggedIn ? '/dashboard' : '/';
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between max-w-screen-2xl">
-        <Link href="/" className="flex items-center gap-2 text-xl font-bold text-primary">
+        <Link href={mainSiteNameLink} className="flex items-center gap-2 text-xl font-bold text-primary">
           <Hospital className="h-7 w-7" />
           <span>PulsePoint</span>
         </Link>
         
-        <nav className="hidden md:flex items-center space-x-4 lg:space-x-6">
-          {navItems.map((item) => (
+        <nav className="hidden md:flex items-center space-x-1 lg:space-x-2">
+          {currentNavItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
-                "text-sm font-medium transition-colors hover:text-primary",
-                pathname === item.href ? "text-primary" : "text-muted-foreground"
+                "text-sm font-medium transition-colors hover:text-primary px-3 py-2 rounded-md",
+                pathname === item.href ? "text-primary bg-primary/10" : "text-muted-foreground"
               )}
             >
               {item.label}
             </Link>
           ))}
+          {isLoggedIn ? (
+            <Button variant="outline" size="sm" onClick={logout} className="ml-2">
+              <LogOut className="mr-2 h-4 w-4" /> Logout
+            </Button>
+          ) : (
+            <>
+              <Button variant="outline" size="sm" asChild className="ml-2">
+                <Link href="/register"><UserPlus className="mr-2 h-4 w-4" />Sign Up</Link>
+              </Button>
+              <Button size="sm" onClick={login}>
+                <LogIn className="mr-2 h-4 w-4" /> Login
+              </Button>
+            </>
+          )}
         </nav>
 
         <div className="md:hidden">
@@ -52,24 +74,45 @@ export function AppHeader() {
               </Button>
             </SheetTrigger>
             <SheetContent side="left">
-              <Link href="/" className="mb-6 flex items-center gap-2 text-lg font-bold text-primary">
+              <Link href={mainSiteNameLink} className="mb-6 flex items-center gap-2 text-lg font-bold text-primary">
                 <Hospital className="h-6 w-6" />
                 <span>PulsePoint</span>
               </Link>
-              <nav className="flex flex-col space-y-3">
-                {navItems.map((item) => (
+              <nav className="flex flex-col space-y-2">
+                {currentNavItems.map((item) => (
+                  <SheetTrigger asChild key={item.href}>
                   <Link
-                    key={item.href}
                     href={item.href}
                     className={cn(
-                      "flex items-center gap-3 rounded-md px-3 py-2 text-base font-medium transition-colors hover:bg-accent hover:text-accent-foreground",
+                      "flex items-center gap-3 rounded-md px-3 py-2 text-base font-medium transition-colors",
                       pathname === item.href ? "bg-accent text-accent-foreground" : "text-foreground hover:bg-muted"
                     )}
                   >
                     <item.icon className="h-5 w-5" />
                     {item.label}
                   </Link>
+                  </SheetTrigger>
                 ))}
+                 {isLoggedIn ? (
+                    <SheetTrigger asChild>
+                      <Button variant="outline" onClick={logout} className="mt-4 justify-start">
+                          <LogOut className="mr-2 h-5 w-5" /> Logout
+                      </Button>
+                    </SheetTrigger>
+                  ) : (
+                    <>
+                      <SheetTrigger asChild>
+                         <Button variant="outline" asChild className="mt-4 justify-start">
+                           <Link href="/register"><UserPlus className="mr-2 h-5 w-5" />Sign Up</Link>
+                         </Button>
+                       </SheetTrigger>
+                       <SheetTrigger asChild>
+                         <Button onClick={login} className="justify-start">
+                           <LogIn className="mr-2 h-5 w-5" /> Login
+                         </Button>
+                       </SheetTrigger>
+                    </>
+                  )}
               </nav>
             </SheetContent>
           </Sheet>
