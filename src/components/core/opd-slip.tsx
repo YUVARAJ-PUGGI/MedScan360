@@ -5,6 +5,7 @@ import type { OpdSlipData } from '@/lib/schemas';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Hospital, CalendarDays, Ticket, UserCircle, Activity } from 'lucide-react';
+import { cn } from '@/lib/utils'; // Make sure cn is imported
 
 interface OpdSlipProps {
   slip: OpdSlipData;
@@ -23,7 +24,7 @@ export default function OpdSlip({ slip }: OpdSlipProps) {
       <CardHeader className="bg-primary/10 text-center p-4">
         <div className="flex items-center justify-center gap-2 mb-2">
           <Hospital className="h-8 w-8 text-primary" />
-          <CardTitle className="text-2xl text-primary">PulsePoint Clinic</CardTitle>
+          <CardTitle className="text-2xl text-primary">MedScan360 Clinic</CardTitle>
         </div>
         <CardDescription className="text-md font-semibold text-primary/90">Outpatient Department Slip</CardDescription>
       </CardHeader>

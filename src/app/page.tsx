@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText, Heart, ShieldCheck, UserPlus, Zap, LogIn, ArrowRight } from "lucide-react"; 
 import Link from "next/link";
-import Image from 'next/image'; // Added import
+import Image from 'next/image';
 import { useAuth } from "@/context/AuthContext"; 
 import { useRouter } from 'next/navigation'; 
 import { useEffect } from 'react'; 
@@ -39,15 +39,15 @@ export default function HomePage() {
       <section className="py-20 md:py-32 bg-gradient-to-r from-primary via-accent to-secondary text-primary-foreground">
         <div className="container mx-auto px-6 text-center">
           <Image 
-            src="https://placehold.co/150x150.png?text=PP" 
-            alt="PulsePoint Logo" 
+            src="https://placehold.co/150x150.png?text=MS" 
+            alt="MedScan360 Logo" 
             width={120} 
             height={120} 
             className="mx-auto mb-8 rounded-full shadow-2xl border-4 border-white/80"
             data-ai-hint="medical logo"
           />
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
-            Welcome to PulsePoint
+            Welcome to MedScan360
           </h1>
           <p className="text-lg md:text-xl lg:text-2xl text-primary-foreground/90 max-w-3xl mx-auto mb-10">
             Your comprehensive solution for emergency medical data management. Streamline patient care from first response to hospital admission.
@@ -81,7 +81,7 @@ export default function HomePage() {
             Key Benefits for Your Team
           </h2>
           <p className="text-center text-muted-foreground mb-16 max-w-2xl mx-auto">
-            PulsePoint is designed to enhance efficiency and accuracy in critical situations.
+            MedScan360 is designed to enhance efficiency and accuracy in critical situations.
           </p>
           <div className="grid md:grid-cols-3 gap-8">
             <BenefitCard
@@ -111,7 +111,7 @@ export default function HomePage() {
             Ready to Streamline Your Workflow?
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-            Join other medical professionals who are enhancing their emergency response capabilities with PulsePoint.
+            Join other medical professionals who are enhancing their emergency response capabilities with MedScan360.
           </p>
           <Button 
             size="lg" 
@@ -125,7 +125,7 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="py-8 text-center text-muted-foreground border-t bg-background">
-        <p>&copy; {new Date().getFullYear()} PulsePoint. Advanced Emergency Medical Systems. (Demo Application)</p>
+        <p>&copy; {new Date().getFullYear()} MedScan360. Advanced Emergency Medical Systems. (Demo Application)</p>
       </footer>
     </div>
   );

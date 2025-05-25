@@ -12,8 +12,8 @@ const openSans = Open_Sans({
 });
 
 export const metadata: Metadata = {
-  title: 'PulsePoint - Emergency Medical Assistant',
-  description: 'Streamlining emergency patient care with PulsePoint.',
+  title: 'MedScan360 - Emergency Medical Assistant',
+  description: 'Streamlining emergency patient care with MedScan360.',
 };
 
 export default function RootLayout({

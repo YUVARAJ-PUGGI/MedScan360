@@ -8,7 +8,7 @@ import { Menu, Hospital, Home, UserPlus, ScanFace, LayoutDashboard, Navigation, 
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext'; 
-import { ThemeToggleButton } from './theme-toggle-button'; // Import the new component
+import { ThemeToggleButton } from './theme-toggle-button';
 
 const loggedOutNavItems = [
   { href: '/', label: 'Home', icon: Home },
@@ -34,7 +34,7 @@ export function AppHeader() {
       <div className="container flex h-16 items-center justify-between max-w-screen-2xl">
         <Link href={mainSiteNameLink} className="flex items-center gap-2 text-xl font-bold text-primary">
           <Hospital className="h-7 w-7" />
-          <span>PulsePoint</span>
+          <span>MedScan360</span>
         </Link>
         
         <div className="flex items-center"> {/* Wrapper for nav and theme toggle */}
@@ -81,7 +81,7 @@ export function AppHeader() {
             <SheetContent side="left">
               <Link href={mainSiteNameLink} className="mb-6 flex items-center gap-2 text-lg font-bold text-primary">
                 <Hospital className="h-6 w-6" />
-                <span>PulsePoint</span>
+                <span>MedScan360</span>
               </Link>
               <nav className="flex flex-col space-y-2">
                 {currentNavItems.map((item) => (
