@@ -1,6 +1,7 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { LayoutDashboard, ScanFace, UserPlus, FileText, MapPin } from "lucide-react";
+import { LayoutDashboard, ScanFace, UserPlus, Navigation } from "lucide-react"; // Added Navigation
 import Link from "next/link";
 import Image from "next/image";
 
@@ -33,6 +34,15 @@ export default function HomePage() {
       img: "https://placehold.co/600x400.png",
       aiHint: "medical dashboard"
     },
+    {
+      title: "Live Location Sharing",
+      description: "Share and view real-time patient location for coordinated emergency response.",
+      icon: Navigation,
+      href: "/live-location",
+      cta: "Track Location",
+      img: "https://placehold.co/600x400.png",
+      aiHint: "live location tracking"
+    },
   ];
 
   return (
@@ -46,7 +56,7 @@ export default function HomePage() {
         </p>
       </section>
 
-      <section className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+      <section className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-16"> {/* Adjusted grid for 4 items */}
         {features.map((feature) => (
           <Card key={feature.title} className="flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
             <div className="relative h-56 w-full">

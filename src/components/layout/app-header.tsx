@@ -1,9 +1,10 @@
+
 "use client";
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, Hospital, Home, UserPlus, ScanFace, LayoutDashboard, MapPin, FileText } from 'lucide-react';
+import { Menu, Hospital, Home, UserPlus, ScanFace, LayoutDashboard, Navigation } from 'lucide-react'; // Added Navigation
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
@@ -12,6 +13,7 @@ const navItems = [
   { href: '/register', label: 'Register Patient', icon: UserPlus },
   { href: '/face-scan', label: 'Face Scan', icon: ScanFace },
   { href: '/dashboard', label: 'Doctor Dashboard', icon: LayoutDashboard },
+  { href: '/live-location', label: 'Live Location', icon: Navigation }, // Added Live Location
   // Emergency form might be accessed via patient context, not direct nav
 ];
 
