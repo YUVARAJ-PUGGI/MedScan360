@@ -1,42 +1,52 @@
+
+"use client";
+
+import { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
 import { EmergencyAdmissionForm } from '@/components/forms/emergency-admission-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { type PatientData } from '@/lib/schemas';
-import { FileText } from 'lucide-react';
+import { usePatientData } from '@/context/PatientDataContext'; // Import the context hook
+import { FileText, AlertTriangle, Loader2 } from 'lucide-react';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
-// Mock function to fetch patient data - replace with actual Firestore call
-async function getPatientData(patientId: string): Promise<PatientData | null> {
-  console.log("Fetching data for patientId:", patientId);
-  await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API delay
-  // This is mock data. In a real app, fetch from Firestore.
-  if (patientId.startsWith("patient-")) {
-    return {
-      id: patientId,
-      name: 'Jane Doe (Fetched)',
-      age: 34,
-      gender: 'Female',
-      bloodGroup: 'O+',
-      allergies: 'Penicillin, Bee stings',
-      medicalConditions: 'Asthma, Hypertension',
-      emergencyContactName: 'John Doe',
-      emergencyContactPhone: '+19876543210',
-      faceImageUrl: 'https://placehold.co/100x100.png',
-    };
+export default function EmergencyFormPage() {
+  const params = useParams();
+  const patientId = params.patientId as string;
+  const { getPatientById } = usePatientData(); // Get function from context
+
+  const [patientData, setPatientData] = useState<PatientData | null | undefined>(undefined); // undefined for loading, null for not found
+
+  useEffect(() => {
+    if (patientId) {
+      const foundPatient = getPatientById(patientId);
+      setPatientData(foundPatient || null); // Set to null if not found
+    }
+  }, [patientId, getPatientById]);
+
+  if (patientData === undefined) {
+    return (
+      <div className="container mx-auto py-8 flex justify-center items-center min-h-[calc(100vh-10rem)]">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <p className="ml-4 text-lg">Loading patient data...</p>
+      </div>
+    );
   }
-  return null;
-}
-
-export default async function EmergencyFormPage({ params }: { params: { patientId: string } }) {
-  const patientData = await getPatientData(params.patientId);
 
   if (!patientData) {
     return (
       <div className="container mx-auto py-8 text-center">
         <Card className="max-w-lg mx-auto shadow-lg">
           <CardHeader>
+            <AlertTriangle className="h-10 w-10 mx-auto mb-3 text-destructive" />
             <CardTitle className="text-2xl text-destructive">Patient Not Found</CardTitle>
           </CardHeader>
           <CardContent>
-            <p>Could not retrieve data for patient ID: {params.patientId}. Please try again or contact support.</p>
+            <p>Could not retrieve data for patient ID: {patientId}. The patient may not be registered in the current session.</p>
+            <Button asChild variant="outline" className="mt-6">
+              <Link href="/dashboard">Back to Dashboard</Link>
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -52,7 +62,7 @@ export default async function EmergencyFormPage({ params }: { params: { patientI
             <CardTitle className="text-3xl">Emergency Admission Form</CardTitle>
           </div>
           <CardDescription className="text-md">
-            Confirm or edit patient details and complete the admission/consent form.
+            Confirm or edit patient details and complete the admission/consent form for <strong>{patientData.name}</strong>.
           </CardDescription>
         </CardHeader>
         <CardContent>
