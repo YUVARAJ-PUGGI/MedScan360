@@ -1,10 +1,11 @@
 
 "use client";
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { MapPin, Loader2, WifiOff, Users, Info, UserCircle } from 'lucide-react'; // Added UserCircle
+import { MapPin, Loader2, AlertTriangle, Users, UserCircle, WifiOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 
 interface PatientLocation {
   id: string;
@@ -15,59 +16,86 @@ interface PatientLocation {
 
 interface LocationMapProps {
   initialPatients?: PatientLocation[];
-  showUserLocation?: boolean; // New prop to control showing user location
+  showUserLocation?: boolean;
+  mapHeight?: string;
 }
 
-export function LocationMap({ initialPatients, showUserLocation = false }: LocationMapProps) {
+const containerStyle = {
+  width: '100%',
+  height: '100%',
+};
+
+const defaultCenter = {
+  lat: 20.5937, // Default to center of India if no location available
+  lng: 78.9629,
+};
+
+export function LocationMap({ initialPatients, showUserLocation = false, mapHeight = "500px" }: LocationMapProps) {
   const [currentCoords, setCurrentCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [trackedPatients, setTrackedPatients] = useState<PatientLocation[]>(initialPatients || []);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const mapRef = useRef<HTMLDivElement>(null);
+  const [mapReady, setMapReady] = useState(false);
   const { toast } = useToast();
 
+  const googleMapsApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+
   useEffect(() => {
+    if (!googleMapsApiKey || googleMapsApiKey === "YOUR_GOOGLE_MAPS_API_KEY_HERE") {
+      const apiKeyError = "Google Maps API key is missing or invalid. Please set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY in your .env file.";
+      setError(apiKeyError);
+      toast({ title: "Map Configuration Error", description: apiKeyError, variant: "destructive" });
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     if (initialPatients && initialPatients.length > 0) {
-        setTrackedPatients(initialPatients);
+      setTrackedPatients(initialPatients);
     } else {
-        setTrackedPatients([]);
+      setTrackedPatients([]);
     }
-    
 
     if (showUserLocation && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setCurrentCoords({
+          const userCoords = {
             lat: position.coords.latitude,
             lng: position.coords.longitude,
-          });
+          };
+          setCurrentCoords(userCoords);
           setError(null);
+          if (!initialPatients || initialPatients.length === 0) {
+            // If only showing user location, center map on them
+            // setMapCenter(userCoords); 
+          }
           setIsLoading(false);
         },
         (err) => {
           console.warn(`Error getting current location: ${err.message}`);
-          setError(`Could not get your current location: ${err.message}. Please ensure location services are enabled for your browser and this site.`);
-          toast({ title: "Location Error", description: `Could not get current location: ${err.message}.`, variant: "destructive"});
+          const geoError = `Could not get your current location: ${err.message}. Please ensure location services are enabled.`;
+          setError(geoError);
+          // Don't toast here if API key is also an issue, to avoid double toasting.
+          // toast({ title: "Location Error", description: geoError, variant: "destructive"});
           setIsLoading(false);
         }
       );
     } else if (showUserLocation) {
       const noGeoLocationMsg = "Geolocation is not supported by this browser or is disabled.";
       setError(noGeoLocationMsg);
-      toast({ title: "Location Error", description: noGeoLocationMsg, variant: "destructive"});
+      // toast({ title: "Location Error", description: noGeoLocationMsg, variant: "destructive"});
       setIsLoading(false);
     } else {
-        setIsLoading(false); // Not showing user location, so stop loading
+      setIsLoading(false); 
     }
-  }, [initialPatients, toast, showUserLocation]);
+  }, [initialPatients, toast, showUserLocation, googleMapsApiKey]);
 
-  // Simulate real-time updates for tracked patients
+  // Simulate real-time updates for tracked patients (if any)
   useEffect(() => {
     let intervalId: NodeJS.Timeout | null = null;
     if (trackedPatients.length > 0) {
       intervalId = setInterval(() => {
-        setTrackedPatients(prevPatients => 
+        setTrackedPatients(prevPatients =>
           prevPatients.map(p => ({
             ...p,
             location: {
@@ -83,16 +111,44 @@ export function LocationMap({ initialPatients, showUserLocation = false }: Locat
     };
   }, [trackedPatients]);
 
+  const mapTitle = showUserLocation ? "Your Current Location" : "Live Locations";
+  const mapDescription = showUserLocation
+    ? "Showing your current location via browser geolocation."
+    : (trackedPatients.length > 0
+      ? "Real-time tracking of entities."
+      : "No live tracking data available.");
 
-  const mapTitle = showUserLocation ? "Your Current Location (Demo)" : "Live Ambulance Locations";
-  const mapDescription = showUserLocation 
-    ? "This is a demonstration of fetching your browser's location." 
-    : (trackedPatients.length > 0 
-        ? "Real-time tracking of incoming emergency vehicles."
-        : "No live vehicle tracking data available currently.");
+  const mapCenter = currentCoords || (trackedPatients.length > 0 ? trackedPatients[0].location : defaultCenter);
+  
+  const onMapLoad = useCallback(() => {
+    setMapReady(true);
+  }, []);
+
+
+  if (!googleMapsApiKey || googleMapsApiKey === "YOUR_GOOGLE_MAPS_API_KEY_HERE") {
+     return (
+      <Card className="h-[600px] flex flex-col shadow-md">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <MapPin className="h-6 w-6 text-destructive" />
+            <CardTitle>Map Unavailable</CardTitle>
+          </div>
+          <CardDescription>Google Maps API key is missing or invalid.</CardDescription>
+        </CardHeader>
+        <CardContent className="flex-grow flex items-center justify-center">
+          <div className="text-center p-6 bg-destructive/10 text-destructive rounded-md">
+            <AlertTriangle className="h-12 w-12 mx-auto mb-4" />
+            <p className="font-semibold">Configuration Error</p>
+            <p>Please provide a valid Google Maps API key in the <code>.env</code> file as <code>NEXT_PUBLIC_GOOGLE_MAPS_API_KEY</code> and restart the application.</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
 
   return (
-    <Card className="h-[600px] flex flex-col shadow-md">
+    <Card className="flex flex-col shadow-md" style={{ height: mapHeight }}>
       <CardHeader>
         <div className="flex items-center gap-2">
           <MapPin className="h-6 w-6 text-primary" />
@@ -101,69 +157,85 @@ export function LocationMap({ initialPatients, showUserLocation = false }: Locat
         <CardDescription>{mapDescription}</CardDescription>
       </CardHeader>
       <CardContent className="flex-grow relative p-0">
-        {isLoading ? (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/80 z-10">
+        {isLoading && !mapReady && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/80 z-20">
             <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
-            <p className="text-lg">Loading Map Data...</p>
-            {showUserLocation && <p className="text-sm text-muted-foreground">Attempting to fetch your location...</p>}
+            <p className="text-lg">Loading Map...</p>
+            {showUserLocation && <p className="text-sm text-muted-foreground">Fetching your location...</p>}
           </div>
-        ) : error ? (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-destructive/10 text-destructive p-6 z-10">
+        )}
+        {error && !isLoading && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-destructive/10 text-destructive p-6 z-20">
             <WifiOff className="h-12 w-12 mb-4" />
-            <p className="text-lg font-semibold">Map Unavailable</p>
-            <p className="text-center">{error}</p>
+            <p className="text-lg font-semibold">Map Data Error</p>
+            <p className="text-center text-sm">{error}</p>
           </div>
-        ) : (
-          <div ref={mapRef} className="w-full h-full bg-muted rounded-b-lg relative overflow-hidden">
-            {/* Simulated Map Background */}
-            <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700 opacity-50">
-                {/* You could add some generic grid lines or patterns here */}
+        )}
+        
+        <LoadScript
+          googleMapsApiKey={googleMapsApiKey!}
+          libraries={['places']} // Add other libraries if needed, e.g. 'drawing', 'visualization'
+          loadingElement={ 
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/80 z-10">
+                <Loader2 className="h-10 w-10 animate-spin text-primary"/> 
+                <p className="text-muted-foreground mt-2">Initializing Google Maps...</p>
             </div>
-            
-            <div className="p-4 h-full flex flex-col items-center justify-center relative z-1">
-              {showUserLocation && currentCoords && (
-                <div className="text-center mb-6 p-4 bg-background/80 rounded-lg shadow-lg">
-                  <UserCircle className="h-12 w-12 text-blue-500 mx-auto mb-2" />
-                  <p className="text-xl font-semibold text-foreground">Your Location (Approx.)</p>
-                  <p className="text-sm text-muted-foreground">
-                    Lat: {currentCoords.lat.toFixed(4)}, Lng: {currentCoords.lng.toFixed(4)}
-                  </p>
-                   <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">(Browser Geolocation)</p>
-                </div>
-              )}
-               {!showUserLocation && trackedPatients.length === 0 && !currentCoords && (
-                 <div className="text-center">
-                    <MapPin className="h-16 w-16 text-primary/50 mb-4" />
-                    <p className="text-xl font-semibold text-muted-foreground">Map Area</p>
-                 </div>
-               )}
-
-
-              {trackedPatients.length > 0 ? (
-                <div className="mt-4 p-3 bg-background/80 rounded-md shadow max-h-40 overflow-y-auto w-full max-w-md">
-                  <h4 className="font-semibold text-sm mb-1 flex items-center"><Users className="h-4 w-4 mr-1.5"/>Tracked Vehicles:</h4>
-                  <ul className="text-xs space-y-0.5">
-                    {trackedPatients.map(p => (
-                      <li key={p.id}>{p.name}: Lat {p.location.lat.toFixed(3)}, Lng {p.location.lng.toFixed(3)}</li>
-                    ))}
-                  </ul>
-                </div>
-              ) : !showUserLocation && (
-                <div className="mt-4 p-3 bg-background/80 rounded-md shadow w-full max-w-md text-center">
-                  <Info className="h-6 w-6 mx-auto mb-2 text-primary"/>
-                  <p className="text-sm text-muted-foreground">No vehicles are currently being tracked live.</p>
-                </div>
-              )}
-              
-               <div className="absolute bottom-4 left-4 right-4 p-3 bg-yellow-100 dark:bg-yellow-800 border border-yellow-300 dark:border-yellow-700 rounded-md text-xs text-yellow-700 dark:text-yellow-300 text-center">
-                <Info className="inline h-4 w-4 mr-1" />
-                This is a **demo map**. A real Google Maps integration requires an API key and the Google Maps SDK.
-              </div>
+          }
+          onError={(e) => {
+              const scriptError = "Failed to load Google Maps script. Check your API key and network connection.";
+              setError(scriptError);
+              toast({ title: "Map Load Error", description: scriptError, variant: "destructive"});
+              setIsLoading(false);
+          }}
+        >
+          <GoogleMap
+            mapContainerStyle={{...containerStyle, height: '100%'}}
+            center={mapCenter}
+            zoom={currentCoords || trackedPatients.length > 0 ? 15 : 5} // Zoom in if we have a specific point
+            onLoad={onMapLoad}
+            options={{
+                streetViewControl: false,
+                mapTypeControl: false,
+                fullscreenControl: false,
+            }}
+          >
+            {showUserLocation && currentCoords && (
+              <Marker
+                position={currentCoords}
+                title="Your Location"
+                icon={{
+                  url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#007bff" width="36px" height="36px"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'),
+                  scaledSize: new window.google.maps.Size(36, 36),
+                  anchor: new window.google.maps.Point(18, 36),
+                }}
+              />
+            )}
+            {!showUserLocation && trackedPatients.map(patient => (
+              <Marker
+                key={patient.id}
+                position={patient.location}
+                title={patient.name}
+                // You can customize patient markers, e.g., different colors based on condition
+              />
+            ))}
+          </GoogleMap>
+        </LoadScript>
+         {mapReady && !isLoading && !error && (trackedPatients.length > 0 || currentCoords) && (
+            <div className="absolute bottom-2 left-2 bg-background/80 p-2 rounded-md shadow-md max-w-xs text-xs">
+                {showUserLocation && currentCoords && (
+                    <p><UserCircle className="inline h-4 w-4 mr-1 text-blue-500"/>Your Location: Lat {currentCoords.lat.toFixed(4)}, Lng {currentCoords.lng.toFixed(4)}</p>
+                )}
+                {!showUserLocation && trackedPatients.length > 0 && (
+                    <>
+                        <p className="font-semibold mb-1"><Users className="inline h-4 w-4 mr-1"/>Tracked Entities:</p>
+                        <ul className="max-h-20 overflow-y-auto">
+                            {trackedPatients.map(p => <li key={p.id}>{p.name}</li>)}
+                        </ul>
+                    </>
+                )}
             </div>
-          </div>
         )}
       </CardContent>
     </Card>
   );
 }
-
