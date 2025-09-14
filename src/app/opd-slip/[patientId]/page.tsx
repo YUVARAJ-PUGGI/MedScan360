@@ -9,7 +9,7 @@ import { generateOpdSlip } from '@/ai/flows/opd-slip-flow';
 import OpdSlipComponent from '@/components/core/opd-slip';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, AlertTriangle, Ticket, ArrowLeft } from 'lucide-react';
+import { Loader2, AlertTriangle, Ticket, ArrowLeft, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 
@@ -21,7 +21,7 @@ export default function OpdSlipGeneratorPage() {
   const { getPatientById } = usePatientData();
   const { toast } = useToast();
 
-  const [patient, setPatient] = useState<PatientData | null | undefined>(undefined); // undefined for loading, null for not found
+  const [patient, setPatient] = useState<PatientData | null | undefined>(undefined);
   const [generatedSlip, setGeneratedSlip] = useState<OpdSlipData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,7 +29,7 @@ export default function OpdSlipGeneratorPage() {
   useEffect(() => {
     if (patientId) {
       const foundPatient = getPatientById(patientId);
-      setPatient(foundPatient || null); // Set to null if not found after check
+      setPatient(foundPatient || null);
     }
   }, [patientId, getPatientById]);
 
@@ -44,12 +44,11 @@ export default function OpdSlipGeneratorPage() {
     setGeneratedSlip(null);
 
     try {
-      // Ensure patient data matches GenerateOpdSlipInput schema
       const inputPatientData = {
         id: patient.id,
         name: patient.name,
         age: patient.age,
-        gender: patient.gender as 'male' | 'female' | 'other', // Cast, assuming validation upstream
+        gender: patient.gender as 'male' | 'female' | 'other',
         bloodGroup: patient.bloodGroup,
         allergies: patient.allergies,
         medicalConditions: patient.medicalConditions,
@@ -61,8 +60,8 @@ export default function OpdSlipGeneratorPage() {
       const slip = await generateOpdSlip({ patient: inputPatientData });
       setGeneratedSlip(slip);
       toast({
-        title: "OPD Slip Generated",
-        description: `Token: ${slip.tokenNumber} for ${slip.patientName}.`,
+        title: "OPD Slip Generated & Saved",
+        description: `Token: ${slip.tokenNumber} for ${slip.patientName} has been saved to Firestore.`,
       });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to generate OPD slip.";
@@ -74,7 +73,7 @@ export default function OpdSlipGeneratorPage() {
     }
   };
 
-  if (patient === undefined) { // Still loading patient data
+  if (patient === undefined) {
     return (
       <div className="container mx-auto py-8 flex justify-center items-center min-h-[calc(100vh-10rem)]">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -82,7 +81,7 @@ export default function OpdSlipGeneratorPage() {
     );
   }
 
-  if (patient === null) { // Patient not found
+  if (patient === null) {
     return (
       <div className="container mx-auto py-8 text-center">
         <Card className="max-w-lg mx-auto shadow-lg">
@@ -111,7 +110,7 @@ export default function OpdSlipGeneratorPage() {
           <Ticket className="h-10 w-10 mx-auto mb-3 text-primary" />
           <CardTitle className="text-3xl">OPD Slip Generator</CardTitle>
           <CardDescription>
-            Generate an Outpatient Department slip for <strong>{patient.name}</strong>.
+            Generate and save an Outpatient Department slip for <strong>{patient.name}</strong>.
           </CardDescription>
         </CardHeader>
         <CardContent className="text-center">
@@ -146,16 +145,14 @@ export default function OpdSlipGeneratorPage() {
               )}
             </Button>
           </div>
-           <Card className="mt-6 max-w-lg mx-auto bg-yellow-50 border border-yellow-300 text-yellow-700">
+           <Card className="mt-6 max-w-lg mx-auto bg-green-50 border border-green-300 text-green-800 dark:bg-green-950 dark:text-green-200">
             <CardContent className="p-4">
                 <div className="flex items-start">
-                    <AlertTriangle className="h-5 w-5 mr-3 mt-1 text-yellow-500 flex-shrink-0" />
+                    <CheckCircle className="h-5 w-5 mr-3 mt-1 text-green-500 flex-shrink-0" />
                     <div>
-                        <h4 className="font-semibold">Backend Integration Note:</h4>
+                        <h4 className="font-semibold">Successfully Saved</h4>
                         <p className="text-sm">
-                            This OPD slip has been generated but is **not yet saved to Firebase**. 
-                            The Genkit flow `opd-slip-flow.ts` contains placeholders for database integration.
-                            You'll need to implement the Firebase Admin SDK calls there to persist the slip data.
+                            This OPD slip has been successfully saved to your Firestore database.
                         </p>
                     </div>
                 </div>
