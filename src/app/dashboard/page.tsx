@@ -6,9 +6,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PatientList } from "@/components/dashboard/patient-list";
 import { PatientDetailsView } from "@/components/dashboard/patient-details-view";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { LayoutDashboard, ListChecks, UserCog } from "lucide-react";
+import { LayoutDashboard, ListChecks, UserCog, Bot } from "lucide-react";
 import { usePatientData } from '@/context/PatientDataContext'; // Import context hook
 import type { PatientData } from '@/lib/schemas';
+import SymptomChecker from '@/components/dashboard/symptom-checker';
+import ReportSummarizer from '@/components/dashboard/report-summarizer';
+import NotesGenerator from '@/components/dashboard/notes-generator';
+import PrescriptionHelper from '@/components/dashboard/prescription-helper';
 
 
 export default function DashboardPage() {
@@ -57,12 +61,15 @@ export default function DashboardPage() {
       </Card>
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-1 md:grid-cols-2 gap-2">
+        <TabsList className="grid w-full grid-cols-1 md:grid-cols-3 gap-2">
           <TabsTrigger value="overview" className="flex items-center gap-2 py-3">
             <ListChecks className="h-5 w-5" /> Patient Overview
           </TabsTrigger>
            <TabsTrigger value="details" className="flex items-center gap-2 py-3 md:hidden"> {/* Show on mobile */}
             <UserCog className="h-5 w-5" /> Patient Details
+          </TabsTrigger>
+           <TabsTrigger value="ai_tools" className="flex items-center gap-2 py-3">
+            <Bot className="h-5 w-5" /> AI Clinical Tools
           </TabsTrigger>
         </TabsList>
 
@@ -85,6 +92,36 @@ export default function DashboardPage() {
            <PatientDetailsView patient={selectedPatientForDetails} />
         </TabsContent>
 
+        <TabsContent value="ai_tools" className="mt-6">
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><Bot className="h-6 w-6"/>AI Clinical Tools</CardTitle>
+                    <CardDescription>Use AI-powered tools to assist with clinical tasks.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Tabs defaultValue="symptom_checker" className="w-full">
+                        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 gap-2">
+                            <TabsTrigger value="symptom_checker">Symptom Checker</TabsTrigger>
+                            <TabsTrigger value="report_summarizer">Report Summarizer</TabsTrigger>
+                            <TabsTrigger value="notes_generator">Notes Generator</TabsTrigger>
+                            <TabsTrigger value="prescription_helper">Prescription Helper</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="symptom_checker" className="mt-4">
+                            <SymptomChecker />
+                        </TabsContent>
+                        <TabsContent value="report_summarizer" className="mt-4">
+                            <ReportSummarizer />
+                        </TabsContent>
+                        <TabsContent value="notes_generator" className="mt-4">
+                            <NotesGenerator />
+                        </TabsContent>
+                        <TabsContent value="prescription_helper" className="mt-4">
+                            <PrescriptionHelper />
+                        </TabsContent>
+                    </Tabs>
+                </CardContent>
+            </Card>
+        </TabsContent>
       </Tabs>
     </div>
   );
