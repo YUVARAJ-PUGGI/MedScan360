@@ -36,7 +36,7 @@ const defaultCenter = {
 const userLocationIcon = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#007bff" width="36px" height="36px"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
 
 // SVG for the ambulance marker
-const ambulanceIcon = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d9534f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-ambulance"><path d="M10 10H6"/><path d="M8 8v4"/><path d="m19 15-3-3"/><path d="M9 6H5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5"/><path d="M10 4 8.29 2.29a1 1 0 0 0-1.41 0L5 4"/><path d="M4 8h16"/><path d="m19 12 3 3"/><circle cx="9" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>');
+const ambulanceIcon = 'data:image/svg+xml;charset=UTF-ARAMCO,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d9534f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-ambulance"><path d="M10 10H6"/><path d="M8 8v4"/><path d="m19 15-3-3"/><path d="M9 6H5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5"/><path d="M10 4 8.29 2.29a1 1 0 0 0-1.41 0L5 4"/><path d="M4 8h16"/><path d="m19 12 3 3"/><circle cx="9" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>');
 
 export function LocationMap({
   initialPatients,

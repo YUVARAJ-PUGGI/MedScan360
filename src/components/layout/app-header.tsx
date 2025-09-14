@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, Hospital, Home, UserPlus, ScanFace, LayoutDashboard, LogIn, LogOut, Bot } from 'lucide-react';
+import { Menu, Hospital, Home, UserPlus, ScanFace, LayoutDashboard, LogIn, LogOut, Bot, Track } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext'; 
@@ -18,6 +18,7 @@ const loggedInNavItems = [
   { href: '/dashboard', label: 'Doctor Dashboard', icon: LayoutDashboard },
   { href: '/register', label: 'Register Patient', icon: UserPlus },
   { href: '/face-scan', label: 'Face Scan', icon: ScanFace },
+  { href: '/ambulance-tracking', label: 'Ambulance Tracking', icon: Track },
 ];
 
 export function AppHeader() {
@@ -96,7 +97,7 @@ export function AppHeader() {
                   </Link>
                   </SheetTrigger>
                 ))}
-                {isLoggedIn ? (
+                 {isLoggedIn ? (
                     <SheetTrigger asChild>
                       <Button variant="outline" onClick={logout} className="mt-4 justify-start">
                           <LogOut className="mr-2 h-5 w-5" /> Logout
@@ -104,8 +105,13 @@ export function AppHeader() {
                     </SheetTrigger>
                   ) : (
                     <>
-                      <SheetTrigger asChild>
+                       <SheetTrigger asChild>
                          <Button variant="outline" asChild className="mt-4 justify-start">
+                           <Link href="/user-dashboard"><Bot className="mr-2 h-5 w-5" /> MedScan AI</Link>
+                         </Button>
+                       </SheetTrigger>
+                       <SheetTrigger asChild>
+                         <Button variant="outline" asChild className="mt-2 justify-start">
                            <Link href="/register"><UserPlus className="mr-2 h-5 w-5" />Sign Up</Link>
                          </Button>
                        </SheetTrigger>
