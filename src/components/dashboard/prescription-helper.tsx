@@ -4,10 +4,10 @@
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input';
+import { Input } from '@/components/ui/input';
 import { Loader2, Pilcrow } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Textarea } from '../ui/textarea';
+import { Textarea } from '@/components/ui/textarea';
 
 export default function PrescriptionHelper() {
   const [diagnosis, setDiagnosis] = useState('');
