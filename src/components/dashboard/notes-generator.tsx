@@ -7,10 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Wand2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { generateNote } from '@/ai/flows/notes-generator-flow';
+import type { NoteGeneratorOutput } from '@/ai/flows/notes-generator-flow';
 
 export default function NotesGenerator() {
   const [keywords, setKeywords] = useState('');
-  const [generatedNote, setGeneratedNote] = useState('');
+  const [generatedNote, setGeneratedNote] = useState<NoteGeneratorOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -25,28 +27,26 @@ export default function NotesGenerator() {
     }
 
     setIsLoading(true);
-    setGeneratedNote('');
+    setGeneratedNote(null);
 
-    // Simulate AI call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
-    // Simulated AI response
-    const simulatedResponse = `
-Patient presented with complaints of: ${keywords}. 
-On examination, [Simulated observation based on keywords]. 
-Assessment: [Simulated assessment]. 
-Plan: [Simulated plan, e.g., recommend rest, hydration, and follow-up in 3 days if symptoms persist].
-
----
-Disclaimer: This is an AI-generated draft and requires review and finalization by a qualified medical professional.
-    `.trim();
-    
-    setGeneratedNote(simulatedResponse);
-    setIsLoading(false);
-    toast({
-      title: "Note Generated",
-      description: "A draft of the doctor's note has been created.",
-    });
+    try {
+      const result = await generateNote({ keywords });
+      setGeneratedNote(result);
+      toast({
+        title: "Note Generated",
+        description: "A draft of the doctor's note has been created.",
+      });
+    } catch(error) {
+      console.error("Note Generation Error:", error);
+      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+      toast({
+        title: "Generation Failed",
+        description: `Could not generate note: ${errorMessage}`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -84,7 +84,7 @@ Disclaimer: This is an AI-generated draft and requires review and finalization b
           <div className="pt-4 border-t">
             <h4 className="font-semibold mb-2">Generated Note:</h4>
             <Textarea
-              value={generatedNote}
+              value={generatedNote.note}
               readOnly
               rows={8}
               className="bg-muted/50"

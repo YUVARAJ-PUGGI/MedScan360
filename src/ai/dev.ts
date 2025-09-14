@@ -3,3 +3,4 @@
 
 import './flows/opd-slip-flow';
 import './flows/symptom-checker-flow';
+import './flows/notes-generator-flow';
