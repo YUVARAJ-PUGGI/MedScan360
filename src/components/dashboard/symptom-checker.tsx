@@ -5,7 +5,6 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
 import { Loader2, Stethoscope } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { analyzeSymptoms } from '@/ai/flows/symptom-checker-flow';
@@ -13,7 +12,6 @@ import type { SymptomAnalysisOutput } from '@/lib/schemas';
 
 export default function SymptomChecker() {
   const [symptoms, setSymptoms] = useState('');
-  const [patientName, setPatientName] = useState('');
   const [analysisResult, setAnalysisResult] = useState<SymptomAnalysisOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -34,7 +32,6 @@ export default function SymptomChecker() {
     try {
         const result = await analyzeSymptoms({ 
             symptoms, 
-            patientName: patientName || "the patient" 
         });
         setAnalysisResult(result);
         toast({
@@ -63,8 +60,7 @@ export default function SymptomChecker() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid sm:grid-cols-3 gap-4">
-          <div className="sm:col-span-2 space-y-2">
+        <div className="space-y-2">
             <label htmlFor="symptoms" className="text-sm font-medium">Patient Symptoms</label>
             <Textarea
               id="symptoms"
@@ -74,17 +70,6 @@ export default function SymptomChecker() {
               rows={4}
               disabled={isLoading}
             />
-          </div>
-          <div className="space-y-2">
-             <label htmlFor="patientName" className="text-sm font-medium">Patient Name (Optional)</label>
-            <Input
-              id="patientName"
-              placeholder="e.g., 'John Doe'"
-              value={patientName}
-              onChange={(e) => setPatientName(e.target.value)}
-              disabled={isLoading}
-            />
-          </div>
         </div>
         <Button onClick={handleAnalyze} disabled={isLoading} className="w-full sm:w-auto">
           {isLoading ? (
@@ -101,7 +86,7 @@ export default function SymptomChecker() {
         </Button>
         {analysisResult && (
           <div className="pt-4 border-t">
-            <h4 className="font-semibold mb-2">Analysis for {patientName || "Patient"}:</h4>
+            <h4 className="font-semibold mb-2">Symptom Analysis:</h4>
             <div className="p-4 bg-muted/50 rounded-md border text-sm whitespace-pre-wrap">
               {analysisResult.analysis}
             </div>

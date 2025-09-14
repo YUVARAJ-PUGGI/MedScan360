@@ -33,7 +33,6 @@ const symptomAnalysisPrompt = ai.definePrompt(
       IMPORTANT: You are providing preliminary insights, not a final diagnosis. Always include a disclaimer
       that this is an AI-generated analysis and should be verified by a qualified medical professional.
 
-      Patient: {{patientName}}
       Symptoms: {{{symptoms}}}
 
       Based on the symptoms provided, please perform the following analysis:

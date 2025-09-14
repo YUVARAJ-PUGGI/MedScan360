@@ -67,7 +67,6 @@ export type GenerateOpdSlipInput = z.infer<typeof GenerateOpdSlipInputSchema>;
 // Symptom Checker Schemas
 export const SymptomAnalysisInputSchema = z.object({
   symptoms: z.string().describe('A description of the patient\'s symptoms.'),
-  patientName: z.string().optional().describe('The name of the patient.'),
 });
 export type SymptomAnalysisInput = z.infer<typeof SymptomAnalysisInputSchema>;
 
@@ -123,5 +122,3 @@ export const PrescriptionHelperOutputSchema = z.object({
     disclaimer: z.string().describe("A prominent disclaimer that this is an AI-generated suggestion for professional review."),
 });
 export type PrescriptionHelperOutput = z.infer<typeof PrescriptionHelperOutputSchema>;
-
-
