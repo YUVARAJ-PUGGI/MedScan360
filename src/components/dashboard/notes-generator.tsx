@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Wand2 } from 'lucide-react';
+import { Loader2, Wand2, AlertTriangle, User, TestTube,ClipboardList, FlaskConical } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { generateNote } from '@/ai/flows/notes-generator-flow';
 import type { NoteGeneratorOutput } from '@/lib/schemas';
@@ -81,17 +81,40 @@ export default function NotesGenerator() {
           )}
         </Button>
         {generatedNote && (
-          <div className="pt-4 border-t">
-            <h4 className="font-semibold mb-2">Generated Note:</h4>
-            <Textarea
-              value={generatedNote.note}
-              readOnly
-              rows={8}
-              className="bg-muted/50"
-            />
+          <div className="pt-4 border-t space-y-4">
+            <h3 className="text-xl font-bold text-primary">Generated S.O.A.P. Note</h3>
+            <NoteSection icon={User} title="Subjective" content={generatedNote.subjective} />
+            <NoteSection icon={TestTube} title="Objective" content={generatedNote.objective} />
+            <NoteSection icon={ClipboardList} title="Assessment" content={generatedNote.assessment} />
+            <NoteSection icon={FlaskConical} title="Plan" content={generatedNote.plan} />
+
+            <div className="p-3 bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 rounded-md text-sm flex items-start gap-2">
+              <AlertTriangle className="h-5 w-5 mt-0.5 flex-shrink-0" />
+              <p>{generatedNote.disclaimer}</p>
+            </div>
           </div>
         )}
       </CardContent>
     </Card>
   );
 }
+
+interface NoteSectionProps {
+    icon: React.ElementType;
+    title: string;
+    content: string;
+}
+
+const NoteSection: React.FC<NoteSectionProps> = ({ icon: Icon, title, content }) => (
+    <Card className="bg-muted/30">
+        <CardHeader className="p-4">
+            <CardTitle className="text-lg flex items-center gap-2">
+                <Icon className="h-5 w-5 text-primary" />
+                {title}
+            </CardTitle>
+        </CardHeader>
+        <CardContent className="p-4 pt-0">
+            <p className="whitespace-pre-wrap">{content}</p>
+        </CardContent>
+    </Card>
+);

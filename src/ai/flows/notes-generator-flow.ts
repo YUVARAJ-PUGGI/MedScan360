@@ -33,18 +33,19 @@ const notesGeneratorPrompt = ai.definePrompt(
       You are an AI assistant for a doctor. Your task is to generate a structured clinical note
       based on a list of keywords and phrases from a patient consultation.
 
-      The note should be professional, concise, and organized into the following sections:
-      - Subjective: Patient's reported complaints.
-      - Objective: Simulated observations (e.g., "On examination...").
-      - Assessment: A possible assessment based on the keywords.
-      - Plan: Suggested next steps.
+      The note must be professional, concise, and strictly organized into the following sections
+      which you will populate into the structured output format:
+      - subjective: Patient's reported complaints (e.g., "Patient reports...").
+      - objective: Simulated clinical observations (e.g., "On examination...").
+      - assessment: A possible diagnosis or assessment based on the keywords.
+      - plan: Suggested next steps, like tests or prescriptions.
 
-      Always include a disclaimer at the end stating that the note is an AI-generated draft
+      You must also generate a disclaimer stating that the note is an AI-generated draft
       and requires review by a qualified medical professional.
 
       Keywords provided: {{{keywords}}}
 
-      Generate the note.
+      Generate the structured note now.
     `,
   }
 );
@@ -64,3 +65,4 @@ const notesGeneratorFlow = ai.defineFlow(
     return output;
   }
 );
+

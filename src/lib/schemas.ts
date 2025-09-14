@@ -83,9 +83,14 @@ export const NoteGeneratorInputSchema = z.object({
 export type NoteGeneratorInput = z.infer<typeof NoteGeneratorInputSchema>;
 
 export const NoteGeneratorOutputSchema = z.object({
-  note: z.string().describe('The structured clinical note generated based on the keywords.'),
+  subjective: z.string().describe("Patient's reported complaints (the 'S' in a SOAP note)."),
+  objective: z.string().describe("Doctor's observations and findings (the 'O' in a SOAP note)."),
+  assessment: z.string().describe("The diagnosis or assessment (the 'A' in a SOAP note)."),
+  plan: z.string().describe("The treatment plan and next steps (the 'P' in a SOAP note)."),
+  disclaimer: z.string().describe("A disclaimer that the note is AI-generated and requires review."),
 });
 export type NoteGeneratorOutput = z.infer<typeof NoteGeneratorOutputSchema>;
+
 
 // Report Summarizer Schemas
 export const ReportSummarizerInputSchema = z.object({
@@ -112,3 +117,4 @@ export const PrescriptionHelperOutputSchema = z.object({
   prescription: z.string().describe('A draft prescription including medication names, dosages, frequencies, and general advice.'),
 });
 export type PrescriptionHelperOutput = z.infer<typeof PrescriptionHelperOutputSchema>;
+
