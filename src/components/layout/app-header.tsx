@@ -12,7 +12,6 @@ import { ThemeToggleButton } from './theme-toggle-button';
 
 const loggedOutNavItems = [
   { href: '/', label: 'Home', icon: Home },
-  { href: '/user-dashboard', label: 'MedScan AI', icon: Bot },
 ];
 
 const loggedInNavItems = [
@@ -97,7 +96,7 @@ export function AppHeader() {
                   </Link>
                   </SheetTrigger>
                 ))}
-                 {isLoggedIn ? (
+                {isLoggedIn ? (
                     <SheetTrigger asChild>
                       <Button variant="outline" onClick={logout} className="mt-4 justify-start">
                           <LogOut className="mr-2 h-5 w-5" /> Logout
