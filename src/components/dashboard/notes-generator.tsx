@@ -2,19 +2,26 @@
 "use client";
 
 import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Wand2, AlertTriangle, User, TestTube,ClipboardList, FlaskConical } from 'lucide-react';
+import { Loader2, Wand2, AlertTriangle, User, TestTube,ClipboardList, FlaskConical, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { generateNote } from '@/ai/flows/notes-generator-flow';
 import type { NoteGeneratorOutput } from '@/lib/schemas';
+import { usePatientData } from '@/context/PatientDataContext';
 
-export default function NotesGenerator() {
+interface NotesGeneratorProps {
+    patientId: string;
+    onNoteSaved: () => void;
+}
+
+export default function NotesGenerator({ patientId, onNoteSaved }: NotesGeneratorProps) {
   const [keywords, setKeywords] = useState('');
   const [generatedNote, setGeneratedNote] = useState<NoteGeneratorOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { addNoteToPatientHistory } = usePatientData();
 
   const handleGenerate = async () => {
     if (!keywords.trim()) {
@@ -49,15 +56,25 @@ export default function NotesGenerator() {
     }
   };
 
+  const handleSaveNote = () => {
+    if (!generatedNote) return;
+
+    const fullNoteContent = `SUBJECTIVE: ${generatedNote.subjective}\nOBJECTIVE: ${generatedNote.objective}\nASSESSMENT: ${generatedNote.assessment}\nPLAN: ${generatedNote.plan}`;
+
+    addNoteToPatientHistory(patientId, fullNoteContent);
+
+    toast({
+        title: "Note Saved",
+        description: "The clinical note has been added to the patient's history."
+    });
+    setGeneratedNote(null);
+    setKeywords('');
+    onNoteSaved(); // Notify parent to close the component
+  }
+
   return (
-    <Card className="shadow-md">
-      <CardHeader>
-        <CardTitle>AI Doctor's Note Generator</CardTitle>
-        <CardDescription>
-          Enter keywords or short phrases about the consultation, and the AI will generate a structured note.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <Card className="shadow-md border-primary border">
+      <CardContent className="space-y-4 p-4">
         <div>
           <Textarea
             placeholder="e.g., 'headache for 2 days, sensitivity to light, no fever'"
@@ -92,6 +109,9 @@ export default function NotesGenerator() {
               <AlertTriangle className="h-5 w-5 mt-0.5 flex-shrink-0" />
               <p>{generatedNote.disclaimer}</p>
             </div>
+            <Button onClick={handleSaveNote} className="w-full">
+                <Save className="mr-2 h-4 w-4" /> Save Note to Patient History
+            </Button>
           </div>
         )}
       </CardContent>

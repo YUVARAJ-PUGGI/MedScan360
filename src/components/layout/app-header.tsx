@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, Hospital, Home, UserPlus, ScanFace, LayoutDashboard, LogIn, LogOut } from 'lucide-react';
+import { Menu, Hospital, Home, UserPlus, ScanFace, LayoutDashboard, LogIn, LogOut, Bot } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext'; 
@@ -15,8 +15,8 @@ const loggedOutNavItems = [
 ];
 
 const loggedInNavItems = [
-  // Home is implicitly covered by the logo link to dashboard for logged-in users
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/dashboard', label: 'Doctor Dashboard', icon: LayoutDashboard },
+  { href: '/user-dashboard', label: 'AI Tools', icon: Bot },
   { href: '/register', label: 'Register Patient', icon: UserPlus },
   { href: '/face-scan', label: 'Face Scan', icon: ScanFace },
 ];
@@ -44,7 +44,7 @@ export function AppHeader() {
                 href={item.href}
                 className={cn(
                   "text-sm font-medium transition-colors hover:text-primary px-3 py-2 rounded-md",
-                  pathname === item.href ? "text-primary bg-primary/10" : "text-muted-foreground"
+                  pathname?.startsWith(item.href) && item.href !== '/' ? "text-primary bg-primary/10" : pathname === item.href ? "text-primary bg-primary/10" : "text-muted-foreground"
                 )}
               >
                 {item.label}
@@ -89,7 +89,7 @@ export function AppHeader() {
                     href={item.href}
                     className={cn(
                       "flex items-center gap-3 rounded-md px-3 py-2 text-base font-medium transition-colors",
-                      pathname === item.href ? "bg-accent text-accent-foreground" : "text-foreground hover:bg-muted"
+                      pathname?.startsWith(item.href) && item.href !== '/' ? "bg-accent text-accent-foreground" : pathname === item.href ? "bg-accent text-accent-foreground" : "text-foreground hover:bg-muted"
                     )}
                   >
                     <item.icon className="h-5 w-5" />

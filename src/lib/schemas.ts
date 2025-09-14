@@ -29,6 +29,12 @@ export const emergencyAdmissionSchema = z.object({
 
 export type EmergencyAdmissionFormData = z.infer<typeof emergencyAdmissionSchema>;
 
+// Defines a single medical note entry
+export interface MedicalNote {
+    date: string; // ISO string format
+    content: string;
+}
+
 // Patient data structure for use across the app
 export interface PatientData {
   id: string;
@@ -41,6 +47,7 @@ export interface PatientData {
   emergencyContactName: string;
   emergencyContactPhone: string;
   faceImageUrl?: string; // URL to stored image (data URL or actual URL)
+  medicalHistory?: MedicalNote[];
 }
 
 // OPD Slip Data

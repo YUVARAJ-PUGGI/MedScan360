@@ -3,39 +3,24 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { type PatientData } from '@/lib/schemas'; 
+import { type PatientData, type MedicalNote } from '@/lib/schemas'; 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { FileDown, Edit3, UserCog, AlertTriangle, Droplet, HeartPulse, Phone, Archive, UserCircle, Ticket } from 'lucide-react';
+import { FileDown, Edit3, UserCog, AlertTriangle, Droplet, HeartPulse, Phone, Archive, UserCircle, Ticket, Notebook, PlusCircle } from 'lucide-react';
 import jsPDF from 'jspdf'; 
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
-// import { useEffect, useState } from 'react'; // Kept for potential future async history loading
+import { useState } from 'react';
+import NotesGenerator from './notes-generator';
+import { ScrollArea } from '../ui/scroll-area';
+import { Separator } from '../ui/separator';
 
 interface PatientDetailsViewProps {
   patient: PatientData | null; 
 }
 
-// Dummy function to simulate fetching detailed forms/history (example for future use)
-// async function fetchPatientHistory(patientId: string) {
-//   await new Promise(resolve => setTimeout(resolve, 700));
-//   return [
-//     { id: 'form1', type: 'Admission Form', date: '2023-10-26', summary: 'Initial assessment for chest pain.' },
-//     { id: 'report1', type: 'Lab Report', date: '2023-10-27', summary: 'Blood work results normal.' },
-//   ];
-// }
-
-
 export function PatientDetailsView({ patient }: PatientDetailsViewProps) {
   const { toast } = useToast();
-  // const [history, setHistory] = useState<any[]>([]);
-
-  // useEffect(() => {
-  //   if (patient) {
-  //     // fetchPatientHistory(patient.id).then(setHistory);
-  //   } else {
-  //     setHistory([]);
-  //   }
-  // }, [patient]);
+  const [showNotesGenerator, setShowNotesGenerator] = useState(false);
 
   const handleDownloadReport = (reportType: string) => {
     if (!patient) return;
@@ -48,13 +33,27 @@ export function PatientDetailsView({ patient }: PatientDetailsViewProps) {
     doc.text(`Medical Conditions: ${patient.medicalConditions || 'None reported'}`, 20, 58);
     doc.text(`Emergency Contact: ${patient.emergencyContactName} (${patient.emergencyContactPhone})`, 20, 65);
     doc.text("--- This is a placeholder summary report. ---", 20, 80);
+    
+    if (patient.medicalHistory && patient.medicalHistory.length > 0) {
+        let yPos = 90;
+        doc.addPage();
+        doc.text("Medical History", 20, 20);
+        yPos = 30;
+        patient.medicalHistory.forEach(note => {
+            doc.text(`Date: ${new Date(note.date).toLocaleDateString()}`, 20, yPos);
+            yPos += 7;
+            doc.text(`Note: ${note.content.substring(0, 100)}...`, 20, yPos);
+            yPos += 10;
+        })
+    }
+
     doc.save(`${patient.name}_${reportType.replace(/\s+/g, '_')}_Summary.pdf`);
     toast({ title: "Report Downloaded", description: `${reportType} summary for ${patient.name} has been downloaded.`});
   };
   
   if (!patient) {
     return (
-      <Card className="h-full flex flex-col items-center justify-center shadow-md">
+      <Card className="h-full flex flex-col items-center justify-center shadow-md min-h-[500px]">
         <CardHeader className="text-center">
            <UserCog className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
           <CardTitle>No Patient Selected</CardTitle>
@@ -88,7 +87,7 @@ export function PatientDetailsView({ patient }: PatientDetailsViewProps) {
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="flex-grow space-y-4 overflow-y-auto p-6"> {/* Added p-6 for consistent padding */}
+      <CardContent className="flex-grow space-y-4 overflow-y-auto p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <InfoBlock icon={Droplet} title="Blood Group" value={patient.bloodGroup} className="font-bold" />
           <InfoBlock icon={Phone} title="Emergency Contact" value={`${patient.emergencyContactName} (${patient.emergencyContactPhone})`} />
@@ -96,21 +95,54 @@ export function PatientDetailsView({ patient }: PatientDetailsViewProps) {
         <InfoBlock icon={AlertTriangle} title="Allergies" value={patient.allergies || 'None reported'} isCritical={!!patient.allergies && patient.allergies !== 'None reported'} />
         <InfoBlock icon={HeartPulse} title="Medical Conditions" value={patient.medicalConditions || 'None reported'} isCritical={!!patient.medicalConditions && patient.medicalConditions !== 'None reported'} />
 
-        <div className="pt-4 border-t space-y-3">
+        <Separator className="my-4"/>
+
+        {/* Medical History Section */}
+        <div className="space-y-3">
+            <h4 className="font-semibold text-lg flex items-center"><Notebook className="w-5 h-5 mr-2 text-primary"/>Medical History</h4>
+            <Card className="bg-muted/30">
+                <ScrollArea className="h-48">
+                    <CardContent className="p-4">
+                        {(!patient.medicalHistory || patient.medicalHistory.length === 0) ? (
+                             <p className="text-sm text-muted-foreground text-center py-4">No past clinical notes found for this patient.</p>
+                        ): (
+                            <ul className="space-y-4">
+                                {patient.medicalHistory.map(note => (
+                                    <li key={note.date}>
+                                        <p className="text-xs font-semibold text-primary">{new Date(note.date).toLocaleString()}</p>
+                                        <p className="text-sm whitespace-pre-wrap">{note.content}</p>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </CardContent>
+                </ScrollArea>
+            </Card>
+        </div>
+
+        {/* Notes Generator Section */}
+        <div className="pt-4 space-y-3">
+           <Button variant="secondary" className="w-full justify-start" onClick={() => setShowNotesGenerator(!showNotesGenerator)}>
+            <PlusCircle className="h-4 w-4 mr-2" /> {showNotesGenerator ? "Close Note Generator" : "Add New Clinical Note"}
+          </Button>
+          {showNotesGenerator && <NotesGenerator patientId={patient.id} onNoteSaved={() => setShowNotesGenerator(false)}/>}
+        </div>
+        
+        <Separator className="my-4"/>
+
+        {/* Actions & Reports Section */}
+        <div className="space-y-3">
           <h4 className="font-semibold text-lg flex items-center"><Archive className="w-5 h-5 mr-2 text-primary"/>Actions & Reports</h4>
-          
           <Button variant="outline" className="w-full justify-start" onClick={() => handleDownloadReport('Patient_Data_Summary')}>
             <FileDown className="h-4 w-4 mr-2" /> Download Patient Summary PDF
           </Button>
-
           <Button asChild variant="outline" className="w-full justify-start">
             <Link href={`/opd-slip/${patient.id}`}>
               <Ticket className="h-4 w-4 mr-2" /> Generate OPD Slip
             </Link>
           </Button>
-          
-          <p className="text-sm text-center text-muted-foreground py-2">Further history integration (e.g., admission forms) pending.</p>
         </div>
+
       </CardContent>
     </Card>
   );
@@ -133,4 +165,3 @@ const InfoBlock: React.FC<InfoBlockProps> = ({ icon: Icon, title, value, classNa
     <p className={`text-base break-words ${isCritical ? 'font-semibold' : 'text-foreground'} ${className}`}>{value}</p>
   </div>
 );
-
