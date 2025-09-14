@@ -100,7 +100,7 @@ export default function DashboardPage() {
                 </CardHeader>
                 <CardContent>
                     <Tabs defaultValue="symptom_checker" className="w-full">
-                        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 gap-2">
+                        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
                             <TabsTrigger value="symptom_checker">Symptom Checker</TabsTrigger>
                             <TabsTrigger value="report_summarizer">Report Summarizer</TabsTrigger>
                             <TabsTrigger value="notes_generator">Notes Generator</TabsTrigger>
