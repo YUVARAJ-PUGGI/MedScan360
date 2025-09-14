@@ -75,3 +75,14 @@ export const SymptomAnalysisOutputSchema = z.object({
   analysis: z.string().describe('A preliminary analysis of the symptoms, including potential conditions and recommended next steps or specialists.'),
 });
 export type SymptomAnalysisOutput = z.infer<typeof SymptomAnalysisOutputSchema>;
+
+// Note Generator Schemas
+export const NoteGeneratorInputSchema = z.object({
+  keywords: z.string().describe('A comma-separated list of keywords or phrases from a patient consultation.'),
+});
+export type NoteGeneratorInput = z.infer<typeof NoteGeneratorInputSchema>;
+
+export const NoteGeneratorOutputSchema = z.object({
+  note: z.string().describe('The structured clinical note generated based on the keywords.'),
+});
+export type NoteGeneratorOutput = z.infer<typeof NoteGeneratorOutputSchema>;

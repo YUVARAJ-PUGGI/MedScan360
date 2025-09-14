@@ -10,19 +10,12 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
-
-// Define the input schema using Zod
-export const NoteGeneratorInputSchema = z.object({
-  keywords: z.string().describe('A comma-separated list of keywords or phrases from a patient consultation.'),
-});
-export type NoteGeneratorInput = z.infer<typeof NoteGeneratorInputSchema>;
-
-// Define the output schema using Zod
-export const NoteGeneratorOutputSchema = z.object({
-  note: z.string().describe('The structured clinical note generated based on the keywords.'),
-});
-export type NoteGeneratorOutput = z.infer<typeof NoteGeneratorOutputSchema>;
+import { 
+    NoteGeneratorInputSchema, 
+    NoteGeneratorOutputSchema,
+    type NoteGeneratorInput,
+    type NoteGeneratorOutput 
+} from '@/lib/schemas';
 
 // Exported function to be called from the frontend
 export async function generateNote(input: NoteGeneratorInput): Promise<NoteGeneratorOutput> {
