@@ -16,25 +16,6 @@ export default function NotesGenerator() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleGenerate = async ().
-    <content><![CDATA[
-"use client";
-
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Wand2 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { generateNote } from '@/ai/flows/notes-generator-flow';
-import type { NoteGeneratorOutput } from '@/lib/schemas';
-
-export default function NotesGenerator() {
-  const [keywords, setKeywords] = useState('');
-  const [generatedNote, setGeneratedNote] = useState<NoteGeneratorOutput | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
-
   const handleGenerate = async () => {
     if (!keywords.trim()) {
       toast({
