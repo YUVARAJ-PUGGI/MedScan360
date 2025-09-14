@@ -165,3 +165,5 @@ const InfoBlock: React.FC<InfoBlockProps> = ({ icon: Icon, title, value, classNa
     <p className={`text-base break-words ${isCritical ? 'font-semibold' : 'text-foreground'} ${className}`}>{value}</p>
   </div>
 );
+
+    
