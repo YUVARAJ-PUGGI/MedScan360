@@ -85,9 +85,8 @@ export default function DashboardPage() {
         </TabsContent>
 
         <TabsContent value="map" className="mt-6">
-          {/* LocationMap can be enhanced to take dynamic patient data if they have locations */}
-          {/* For now, it might show a default state or specific tracked vehicles */}
-          <LocationMap initialPatients={[]} /> 
+          {/* This instance of LocationMap will now track the simulated ambulance */}
+          <LocationMap trackAmbulance={true} mapHeight="calc(100vh - 22rem)" /> 
         </TabsContent>
         
         <TabsContent value="details" className="mt-6 md:hidden"> {/* Show only on mobile */}
@@ -97,3 +96,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
