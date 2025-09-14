@@ -86,3 +86,25 @@ export const NoteGeneratorOutputSchema = z.object({
   note: z.string().describe('The structured clinical note generated based on the keywords.'),
 });
 export type NoteGeneratorOutput = z.infer<typeof NoteGeneratorOutputSchema>;
+
+// Report Summarizer Schemas
+export const ReportSummarizerInputSchema = z.object({
+  reportText: z.string().describe('The full text of a medical report to be summarized.'),
+});
+export type ReportSummarizerInput = z.infer<typeof ReportSummarizerInputSchema>;
+
+export const ReportSummarizerOutputSchema = z.object({
+  summary: z.string().describe('A concise summary of the key findings, conclusion, and recommendations from the medical report.'),
+});
+export type ReportSummarizerOutput = z.infer<typeof ReportSummarizerOutputSchema>;
+
+// Prescription Helper Schemas
+export const PrescriptionHelperInputSchema = z.object({
+  diagnosis: z.string().describe('The diagnosis for which a prescription suggestion is needed.'),
+});
+export type PrescriptionHelperInput = z.infer<typeof PrescriptionHelperInputSchema>;
+
+export const PrescriptionHelperOutputSchema = z.object({
+  prescription: z.string().describe('A draft prescription including medication names, dosages, frequencies, and general advice.'),
+});
+export type PrescriptionHelperOutput = z.infer<typeof PrescriptionHelperOutputSchema>;

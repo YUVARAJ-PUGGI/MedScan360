@@ -7,10 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, BookText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { summarizeReport } from '@/ai/flows/report-summarizer-flow';
+import type { ReportSummarizerOutput } from '@/lib/schemas';
 
 export default function ReportSummarizer() {
   const [reportText, setReportText] = useState('');
-  const [summary, setSummary] = useState('');
+  const [summary, setSummary] = useState<ReportSummarizerOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -25,33 +27,26 @@ export default function ReportSummarizer() {
     }
 
     setIsLoading(true);
-    setSummary('');
+    setSummary(null);
 
-    // Simulate AI call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-    // Simulated AI response
-    const simulatedSummary = `
-**Key Findings:**
-- [Simulated key finding 1 based on report text]
-- [Simulated key finding 2 based on report text]
-
-**Conclusion/Diagnosis:**
-- [Simulated conclusion, e.g., "Signs consistent with community-acquired pneumonia."]
-
-**Recommendations:**
-- [Simulated recommendation, e.g., "Suggest starting a course of antibiotics and follow-up imaging in 2 weeks."]
-
----
-Disclaimer: This is an AI-generated summary and should not replace a full review of the original report by a qualified professional.
-    `.trim();
-    
-    setSummary(simulatedSummary);
-    setIsLoading(false);
-    toast({
-      title: "Summary Generated",
-      description: "The medical report has been summarized.",
-    });
+    try {
+      const result = await summarizeReport({ reportText });
+      setSummary(result);
+      toast({
+        title: "Summary Generated",
+        description: "The medical report has been summarized.",
+      });
+    } catch(error) {
+      console.error("Report Summarization Error:", error);
+      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+      toast({
+        title: "Summarization Failed",
+        description: `Could not summarize report: ${errorMessage}`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -89,7 +84,7 @@ Disclaimer: This is an AI-generated summary and should not replace a full review
           <div className="pt-4 border-t">
             <h4 className="font-semibold mb-2">Generated Summary:</h4>
             <div className="p-4 bg-muted/50 rounded-md border text-sm whitespace-pre-wrap">
-              {summary}
+              {summary.summary}
             </div>
           </div>
         )}

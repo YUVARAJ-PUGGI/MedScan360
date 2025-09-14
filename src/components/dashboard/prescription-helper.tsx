@@ -8,10 +8,12 @@ import { Input } from '@/components/ui/input';
 import { Loader2, Pilcrow } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
+import { generatePrescription } from '@/ai/flows/prescription-helper-flow';
+import type { PrescriptionHelperOutput } from '@/lib/schemas';
 
 export default function PrescriptionHelper() {
   const [diagnosis, setDiagnosis] = useState('');
-  const [generatedPrescription, setGeneratedPrescription] = useState('');
+  const [generatedPrescription, setGeneratedPrescription] = useState<PrescriptionHelperOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -26,38 +28,26 @@ export default function PrescriptionHelper() {
     }
 
     setIsLoading(true);
-    setGeneratedPrescription('');
+    setGeneratedPrescription(null);
 
-    // Simulate AI call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
-    // Simulated AI response
-    const simulatedResponse = `
-Based on the diagnosis of "${diagnosis}", here is a draft prescription suggestion:
-
-1. Medication: [Simulated Medication Name, e.g., Amoxicillin]
-   Dosage: [e.g., 500mg]
-   Frequency: [e.g., Twice a day for 7 days]
-
-2. Medication: [Simulated Medication Name, e.g., Paracetamol]
-   Dosage: [e.g., 500mg]
-   Frequency: [e.g., As needed for pain or fever, up to 4 times a day]
-
-Advice:
-- Complete the full course of antibiotics.
-- Ensure adequate rest and hydration.
-- Follow up if symptoms do not improve.
-
----
-Disclaimer: This is an AI-generated suggestion. The attending physician must verify all details, including drug names, dosages, and contraindications before issuing the final prescription.
-    `.trim();
-    
-    setGeneratedPrescription(simulatedResponse);
-    setIsLoading(false);
-    toast({
-      title: "Prescription Draft Generated",
-      description: "A draft has been created based on the diagnosis.",
-    });
+    try {
+      const result = await generatePrescription({ diagnosis });
+      setGeneratedPrescription(result);
+      toast({
+        title: "Prescription Draft Generated",
+        description: "A draft has been created based on the diagnosis.",
+      });
+    } catch(error) {
+        console.error("Prescription Generation Error:", error);
+        const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+        toast({
+          title: "Generation Failed",
+          description: `Could not generate prescription: ${errorMessage}`,
+          variant: "destructive",
+        });
+    } finally {
+        setIsLoading(false);
+    }
   };
 
   return (
@@ -72,7 +62,7 @@ Disclaimer: This is an AI-generated suggestion. The attending physician must ver
         <div>
           <Input
             placeholder="e.g., 'Acute Bronchitis'"
-            value={diagnosis}
+            value={ diagnosis }
             onChange={(e) => setDiagnosis(e.target.value)}
             disabled={isLoading}
           />
@@ -94,7 +84,7 @@ Disclaimer: This is an AI-generated suggestion. The attending physician must ver
           <div className="pt-4 border-t">
             <h4 className="font-semibold mb-2">Generated Draft:</h4>
             <Textarea
-              value={generatedPrescription}
+              value={generatedPrescription.prescription}
               readOnly
               rows={12}
               className="bg-muted/50 font-mono text-xs"
