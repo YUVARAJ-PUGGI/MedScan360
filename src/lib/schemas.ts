@@ -63,3 +63,15 @@ export const GenerateOpdSlipInputSchema = z.object({
   patient: patientRegistrationSchema.extend({ id: z.string() }) // Use PatientData structure
 });
 export type GenerateOpdSlipInput = z.infer<typeof GenerateOpdSlipInputSchema>;
+
+// Symptom Checker Schemas
+export const SymptomAnalysisInputSchema = z.object({
+  symptoms: z.string().describe('A description of the patient\'s symptoms.'),
+  patientName: z.string().optional().describe('The name of the patient.'),
+});
+export type SymptomAnalysisInput = z.infer<typeof SymptomAnalysisInputSchema>;
+
+export const SymptomAnalysisOutputSchema = z.object({
+  analysis: z.string().describe('A preliminary analysis of the symptoms, including potential conditions and recommended next steps or specialists.'),
+});
+export type SymptomAnalysisOutput = z.infer<typeof SymptomAnalysisOutputSchema>;

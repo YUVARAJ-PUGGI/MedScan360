@@ -9,20 +9,7 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
-
-// Define the input schema for the symptom analysis flow
-export const SymptomAnalysisInputSchema = z.object({
-  symptoms: z.string().describe('A description of the patient\'s symptoms.'),
-  patientName: z.string().optional().describe('The name of the patient.'),
-});
-export type SymptomAnalysisInput = z.infer<typeof SymptomAnalysisInputSchema>;
-
-// Define the output schema for the symptom analysis flow
-export const SymptomAnalysisOutputSchema = z.object({
-  analysis: z.string().describe('A preliminary analysis of the symptoms, including potential conditions and recommended next steps or specialists.'),
-});
-export type SymptomAnalysisOutput = z.infer<typeof SymptomAnalysisOutputSchema>;
+import { SymptomAnalysisInputSchema, type SymptomAnalysisInput, SymptomAnalysisOutputSchema, type SymptomAnalysisOutput } from '@/lib/schemas';
 
 
 // Exported function to be called from the frontend
