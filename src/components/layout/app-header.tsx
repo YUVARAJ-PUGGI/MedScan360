@@ -16,7 +16,7 @@ const loggedOutNavItems = [
 
 const loggedInNavItems = [
   { href: '/dashboard', label: 'Doctor Dashboard', icon: LayoutDashboard },
-  { href: '/user-dashboard', label: 'AI Tools', icon: Bot },
+  { href: '/user-dashboard', label: 'MedScan AI', icon: Bot },
   { href: '/register', label: 'Register Patient', icon: UserPlus },
   { href: '/face-scan', label: 'Face Scan', icon: ScanFace },
 ];
