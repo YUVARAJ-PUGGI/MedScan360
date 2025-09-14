@@ -18,7 +18,6 @@ const loggedInNavItems = [
   { href: '/dashboard', label: 'Doctor Dashboard', icon: LayoutDashboard },
   { href: '/register', label: 'Register Patient', icon: UserPlus },
   { href: '/face-scan', label: 'Face Scan', icon: ScanFace },
-  { href: '/user-dashboard', label: 'MedScan AI', icon: Bot },
 ];
 
 export function AppHeader() {

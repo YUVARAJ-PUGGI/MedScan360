@@ -45,7 +45,7 @@ export default function HomePage() {
           <p className="text-lg md:text-xl lg:text-2xl text-primary-foreground/90 max-w-3xl mx-auto mb-10">
             Your comprehensive solution for emergency medical data management. Streamline patient care from first response to hospital admission.
           </p>
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+          <div className="flex flex-wrap justify-center items-center gap-4">
             <Button 
               size="lg" 
               className="bg-white text-primary hover:bg-white/90 shadow-xl transform hover:scale-105 transition-transform duration-150 w-full sm:w-auto py-3 px-8"
@@ -62,6 +62,16 @@ export default function HomePage() {
               onClick={handleLogin}
             >
               <LogIn className="mr-2 h-5 w-5" /> Access Professional Dashboard
+            </Button>
+             <Button 
+              variant="secondary" 
+              size="lg" 
+              className="bg-accent text-accent-foreground hover:bg-accent/90 shadow-xl transform hover:scale-105 transition-transform duration-150 w-full sm:w-auto py-3 px-8"
+              asChild
+            >
+              <Link href="/user-dashboard">
+                <Bot className="mr-2 h-5 w-5" /> Try MedScan AI
+              </Link>
             </Button>
           </div>
         </div>
