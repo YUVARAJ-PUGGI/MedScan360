@@ -11,54 +11,6 @@ import { generatePrescription } from '@/ai/flows/prescription-helper-flow';
 import type { PrescriptionHelperOutput } from '@/lib/schemas';
 import { Separator } from '../ui/separator';
 
-// Simple parser to extract sections from the generated text
-function parsePrescription(text: string) {
-    const sections = {
-        medications: [] as string[],
-        advice: [] as string[],
-        disclaimer: ''
-    };
-
-    // A very basic parser assuming the AI follows a somewhat predictable format.
-    const lines = text.split('\n').filter(line => line.trim() !== '');
-
-    let currentSection: 'meds' | 'advice' | 'disclaimer' | null = null;
-
-    for (const line of lines) {
-        const lowerLine = line.toLowerCase();
-        if (lowerLine.includes('medication')) {
-            currentSection = 'meds';
-            continue;
-        } else if (lowerLine.includes('advice')) {
-            currentSection = 'advice';
-            continue;
-        } else if (lowerLine.includes('disclaimer')) {
-            currentSection = 'disclaimer';
-            // Capture multi-line disclaimer
-            const disclaimerIndex = text.toLowerCase().indexOf('disclaimer');
-            if (disclaimerIndex !== -1) {
-                sections.disclaimer = text.substring(disclaimerIndex);
-            }
-            break; // Disclaimer is assumed to be last
-        }
-
-        if (currentSection === 'meds' && (line.startsWith('1.') || line.startsWith('2.') || line.startsWith('-'))) {
-            sections.medications.push(line.substring(2).trim());
-        } else if (currentSection === 'advice' && (line.startsWith('1.') || line.startsWith('2.') || line.startsWith('-'))) {
-            sections.advice.push(line.substring(2).trim());
-        }
-    }
-    
-    // Fallback if parsing is weak
-    if (sections.medications.length === 0 && sections.advice.length === 0 && !sections.disclaimer) {
-        return { ...sections, disclaimer: text };
-    }
-
-
-    return sections;
-}
-
-
 export default function PrescriptionHelper() {
   const [diagnosis, setDiagnosis] = useState('');
   const [generatedPrescription, setGeneratedPrescription] = useState<PrescriptionHelperOutput | null>(null);
@@ -98,8 +50,6 @@ export default function PrescriptionHelper() {
     }
   };
 
-  const parsedResult = generatedPrescription ? parsePrescription(generatedPrescription.prescription) : null;
-
   return (
     <Card className="shadow-md">
       <CardHeader>
@@ -130,7 +80,7 @@ export default function PrescriptionHelper() {
             </>
           )}
         </Button>
-        {parsedResult && (
+        {generatedPrescription && (
           <div className="pt-4 border-t space-y-4">
             <h3 className="text-xl font-bold text-primary">Generated Draft</h3>
             
@@ -139,9 +89,12 @@ export default function PrescriptionHelper() {
                     <CardTitle className="text-lg flex items-center gap-2"><Pill className="h-5 w-5 text-primary"/>Medication Suggestions</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <ul className="list-disc list-inside space-y-2">
-                        {parsedResult.medications.map((med, index) => (
-                            <li key={index}>{med}</li>
+                    <ul className="space-y-3">
+                        {generatedPrescription.medications.map((med, index) => (
+                            <li key={index} className="flex flex-col sm:flex-row justify-between p-2 rounded-md bg-muted/50">
+                                <span className="font-semibold">{med.name}</span>
+                                <span className="text-muted-foreground">{med.dosage}, {med.frequency}</span>
+                            </li>
                         ))}
                     </ul>
                 </CardContent>
@@ -153,7 +106,7 @@ export default function PrescriptionHelper() {
                 </CardHeader>
                 <CardContent>
                      <ul className="list-disc list-inside space-y-2">
-                        {parsedResult.advice.map((adv, index) => (
+                        {generatedPrescription.advice.map((adv, index) => (
                             <li key={index}>{adv}</li>
                         ))}
                     </ul>
@@ -164,7 +117,7 @@ export default function PrescriptionHelper() {
 
              <div className="p-3 bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 rounded-md text-sm flex items-start gap-2">
               <AlertTriangle className="h-5 w-5 mt-0.5 flex-shrink-0" />
-              <p className="whitespace-pre-wrap">{parsedResult.disclaimer}</p>
+              <p className="whitespace-pre-wrap">{generatedPrescription.disclaimer}</p>
             </div>
           </div>
         )}

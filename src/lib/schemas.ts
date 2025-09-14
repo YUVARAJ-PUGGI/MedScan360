@@ -114,7 +114,14 @@ export const PrescriptionHelperInputSchema = z.object({
 export type PrescriptionHelperInput = z.infer<typeof PrescriptionHelperInputSchema>;
 
 export const PrescriptionHelperOutputSchema = z.object({
-  prescription: z.string().describe('A draft prescription including medication names, dosages, frequencies, and general advice.'),
+    medications: z.array(z.object({
+        name: z.string().describe("Name of the medication."),
+        dosage: z.string().describe("Recommended dosage, e.g., '500mg'."),
+        frequency: z.string().describe("How often to take the medication, e.g., 'Twice a day'."),
+    })).describe("A list of suggested medications."),
+    advice: z.array(z.string()).describe("A list of general, non-pharmacological advice for the patient."),
+    disclaimer: z.string().describe("A prominent disclaimer that this is an AI-generated suggestion for professional review."),
 });
 export type PrescriptionHelperOutput = z.infer<typeof PrescriptionHelperOutputSchema>;
+
 

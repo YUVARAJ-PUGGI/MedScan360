@@ -32,20 +32,16 @@ const prescriptionHelperPrompt = ai.definePrompt(
     prompt: `
       You are an AI assistant designed to help doctors by drafting prescription suggestions.
       Your suggestions should be based on common treatment guidelines for the provided diagnosis.
+      Provide the output in a structured format.
 
       The draft should include:
-      1.  **Medication**: Suggest 1-2 common medications for the diagnosis.
-      2.  **Dosage**: Provide a standard dosage (e.g., 500mg).
-      3.  **Frequency**: Provide a standard frequency (e.g., Twice a day for 7 days).
-      4.  **General Advice**: Include brief, non-pharmacological advice (e.g., rest, hydration).
-
-      Crucially, you must ALWAYS include a prominent disclaimer that this is a draft suggestion
-      and the attending physician must verify all details (drug names, dosages, patient allergies,
-      contraindications) before issuing a final, official prescription.
+      1.  **Medications**: Suggest 1-2 common medications for the diagnosis, including a standard dosage (e.g., 500mg) and frequency (e.g., Twice a day for 7 days).
+      2.  **Advice**: Include a list of brief, non-pharmacological advice points (e.g., rest, hydration).
+      3.  **Disclaimer**: Crucially, you must ALWAYS include a prominent disclaimer that this is a draft suggestion and the attending physician must verify all details (drug names, dosages, patient allergies, contraindications) before issuing a final, official prescription.
 
       Diagnosis provided: {{{diagnosis}}}
 
-      Generate the prescription draft.
+      Generate the structured prescription draft now.
     `,
   }
 );
