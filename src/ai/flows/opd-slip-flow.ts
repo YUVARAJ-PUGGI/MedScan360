@@ -3,14 +3,14 @@
 /**
  * @fileOverview A Genkit flow for generating and managing OPD (Outpatient Department) slips.
  *
- * - generateOpdSlip - Generates an OPD slip for a patient and stores it in Firestore.
+ * - generateOpdSlip - Generates an OPD slip for a patient.
  * - GenerateOpdSlipInput - The input type for the generateOpdSlip function.
  * - OpdSlipData - The return type representing the generated OPD slip.
  */
 
 import { ai } from '@/ai/genkit';
 import { type OpdSlipData, OpdSlipDataSchema, type GenerateOpdSlipInput, GenerateOpdSlipInputSchema } from '@/lib/schemas';
-import { saveOpdSlip } from '@/services/firestore';
+// Removed Firestore import as we are reverting the save functionality
 
 function generateTokenNumber(): string {
   const datePart = new Date().toISOString().slice(0, 10).replace(/-/g, '');
@@ -46,10 +46,9 @@ const generateOpdSlipFlow = ai.defineFlow(
       // doctorName: "Dr. A. Smith", 
     };
 
-    // Save the slip to Firestore
-    await saveOpdSlip(opdSlip);
-    console.log(`OPD Slip ${opdSlip.id} for patient ${opdSlip.patientId} stored in Firestore.`);
-
+    // The slip is no longer saved to Firestore.
+    // console.log(`OPD Slip ${opdSlip.id} for patient ${opdSlip.patientId} generated.`);
+    
     return opdSlip;
   }
 );
