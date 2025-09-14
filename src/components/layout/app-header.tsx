@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, Hospital, Home, UserPlus, ScanFace, LayoutDashboard, LogIn, LogOut, Bot, Track } from 'lucide-react';
+import { Menu, Hospital, Home, UserPlus, ScanFace, LayoutDashboard, LogIn, LogOut, Bot, Truck } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext'; 
@@ -18,7 +18,7 @@ const loggedInNavItems = [
   { href: '/dashboard', label: 'Doctor Dashboard', icon: LayoutDashboard },
   { href: '/register', label: 'Register Patient', icon: UserPlus },
   { href: '/face-scan', label: 'Face Scan', icon: ScanFace },
-  { href: '/ambulance-tracking', label: 'Ambulance Tracking', icon: Track },
+  { href: '/ambulance-tracking', label: 'Ambulance Tracking', icon: Truck },
 ];
 
 export function AppHeader() {
@@ -56,6 +56,16 @@ export function AppHeader() {
               </Button>
             ) : (
               <>
+                 <Button 
+                  variant="secondary" 
+                  size="sm" 
+                  className="bg-accent text-accent-foreground hover:bg-accent/90 shadow-md transform hover:scale-105 transition-transform duration-150"
+                  asChild
+                >
+                  <Link href="/user-dashboard">
+                    <Bot className="mr-2 h-4 w-4" /> Try MedScan AI
+                  </Link>
+                </Button>
                 <Button variant="outline" size="sm" asChild className="ml-2">
                   <Link href="/register"><UserPlus className="mr-2 h-4 w-4" />Sign Up</Link>
                 </Button>

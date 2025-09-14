@@ -3,7 +3,7 @@
 
 import { LocationMap } from '@/components/dashboard/location-map';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Track } from 'lucide-react';
+import { Truck } from 'lucide-react';
 
 export default function AmbulanceTrackingPage() {
   return (
@@ -11,7 +11,7 @@ export default function AmbulanceTrackingPage() {
       <Card className="shadow-lg">
         <CardHeader>
           <div className="flex items-center gap-3 mb-2">
-            <Track className="h-8 w-8 text-primary" />
+            <Truck className="h-8 w-8 text-primary" />
             <CardTitle className="text-3xl">Live Ambulance Tracking</CardTitle>
           </div>
           <CardDescription className="text-md">
