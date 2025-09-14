@@ -189,45 +189,49 @@ export function LocationMap({
                 zoomControl: true,
             }}
           >
-            {showUserLocation && currentCoords && (
-              <>
-                <Marker
-                  position={currentCoords}
-                  title="Your Location"
-                  icon={{
-                    url: userLocationIcon,
-                    scaledSize: new window.google.maps.Size(36, 36),
-                    anchor: new window.google.maps.Point(18, 36),
-                  }}
-                />
-                {showInfoWindow && (
-                    <InfoWindowF position={currentCoords} onCloseClick={() => setShowInfoWindow(false)}>
-                        <div>
-                            <h4 style={{fontWeight: 'bold'}}>You are here</h4>
-                            <p>Location approximated.</p>
-                        </div>
-                    </InfoWindowF>
+           {mapReady && (
+             <>
+                {showUserLocation && currentCoords && (
+                <>
+                    <Marker
+                    position={currentCoords}
+                    title="Your Location"
+                    icon={{
+                        url: userLocationIcon,
+                        scaledSize: new window.google.maps.Size(36, 36),
+                        anchor: new window.google.maps.Point(18, 36),
+                    }}
+                    />
+                    {showInfoWindow && (
+                        <InfoWindowF position={currentCoords} onCloseClick={() => setShowInfoWindow(false)}>
+                            <div>
+                                <h4 style={{fontWeight: 'bold'}}>You are here</h4>
+                                <p>Location approximated.</p>
+                            </div>
+                        </InfoWindowF>
+                    )}
+                </>
                 )}
-              </>
-            )}
-            {trackAmbulance && ambulanceCoords && (
-              <Marker
-                position={ambulanceCoords}
-                title="Ambulance"
-                icon={{
-                  url: ambulanceIcon,
-                  scaledSize: new window.google.maps.Size(48, 48),
-                  anchor: new window.google.maps.Point(24, 24),
-                }}
-              />
-            )}
-            {!showUserLocation && trackedPatients.map(patient => (
-              <Marker
-                key={patient.id}
-                position={patient.location}
-                title={patient.name}
-              />
-            ))}
+                {trackAmbulance && ambulanceCoords && (
+                <Marker
+                    position={ambulanceCoords}
+                    title="Ambulance"
+                    icon={{
+                    url: ambulanceIcon,
+                    scaledSize: new window.google.maps.Size(48, 48),
+                    anchor: new window.google.maps.Point(24, 24),
+                    }}
+                />
+                )}
+                {!showUserLocation && trackedPatients.map(patient => (
+                <Marker
+                    key={patient.id}
+                    position={patient.location}
+                    title={patient.name}
+                />
+                ))}
+             </>
+           )}
              {showUserLocation && mapReady && (
                 <div style={{ position: 'absolute', top: '10px', left: '50%', transform: 'translateX(-50%)' }}>
                      <Button onClick={handleCenterOnUser} variant="secondary" className="shadow-lg">
@@ -255,5 +259,3 @@ export function LocationMap({
     </Card>
   );
 }
-
-    
