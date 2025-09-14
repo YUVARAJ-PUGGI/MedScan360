@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, BookText } from 'lucide-react';
+import { Loader2, BookText, AlertTriangle, ListChecks, Stethoscope, Lightbulb } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { summarizeReport } from '@/ai/flows/report-summarizer-flow';
 import type { ReportSummarizerOutput } from '@/lib/schemas';
@@ -54,7 +54,7 @@ export default function ReportSummarizer() {
       <CardHeader>
         <CardTitle>AI Medical Report Summarizer</CardTitle>
         <CardDescription>
-          Paste a lengthy medical report below, and the AI will generate a concise summary.
+          Paste a lengthy medical report below, and the AI will generate a concise, patient-friendly summary.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -81,10 +81,28 @@ export default function ReportSummarizer() {
           )}
         </Button>
         {summary && (
-          <div className="pt-4 border-t">
-            <h4 className="font-semibold mb-2">Generated Summary:</h4>
-            <div className="p-4 bg-muted/50 rounded-md border text-sm whitespace-pre-wrap">
-              {summary.summary}
+          <div className="pt-4 border-t space-y-4">
+            <h3 className="text-xl font-bold text-primary">Your Report Summary</h3>
+            
+            <SummarySection icon={ListChecks} title="Key Findings" items={summary.keyFindings} />
+            
+            <Card className="bg-muted/30">
+                <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                        <Stethoscope className="h-5 w-5 text-primary" />
+                        What It Means (Diagnosis)
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p>{summary.diagnosis}</p>
+                </CardContent>
+            </Card>
+
+            <SummarySection icon={Lightbulb} title="What's Next (Recommendations)" items={summary.recommendations} />
+            
+            <div className="p-3 bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 rounded-md text-sm flex items-start gap-2">
+              <AlertTriangle className="h-5 w-5 mt-0.5 flex-shrink-0" />
+              <p>{summary.disclaimer}</p>
             </div>
           </div>
         )}
@@ -92,3 +110,27 @@ export default function ReportSummarizer() {
     </Card>
   );
 }
+
+interface SummarySectionProps {
+    icon: React.ElementType;
+    title: string;
+    items: string[];
+}
+
+const SummarySection: React.FC<SummarySectionProps> = ({ icon: Icon, title, items }) => (
+    <Card>
+        <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+                <Icon className="h-5 w-5 text-primary" />
+                {title}
+            </CardTitle>
+        </CardHeader>
+        <CardContent>
+            <ul className="list-disc list-inside space-y-1">
+                {items.map((item, index) => (
+                    <li key={index}>{item}</li>
+                ))}
+            </ul>
+        </CardContent>
+    </Card>
+);

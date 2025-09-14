@@ -94,9 +94,13 @@ export const ReportSummarizerInputSchema = z.object({
 export type ReportSummarizerInput = z.infer<typeof ReportSummarizerInputSchema>;
 
 export const ReportSummarizerOutputSchema = z.object({
-  summary: z.string().describe('A concise summary of the key findings, conclusion, and recommendations from the medical report.'),
+  keyFindings: z.array(z.string()).describe('A list of the most important observations from the report.'),
+  diagnosis: z.string().describe('The final conclusion or diagnosis mentioned in the report.'),
+  recommendations: z.array(z.string()).describe('A list of recommended next steps, treatments, or follow-ups.'),
+  disclaimer: z.string().describe('A disclaimer that this is an AI-generated summary.'),
 });
 export type ReportSummarizerOutput = z.infer<typeof ReportSummarizerOutputSchema>;
+
 
 // Prescription Helper Schemas
 export const PrescriptionHelperInputSchema = z.object({

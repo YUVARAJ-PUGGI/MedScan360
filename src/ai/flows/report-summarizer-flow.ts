@@ -4,7 +4,7 @@
  * @fileOverview A Genkit flow for summarizing medical reports.
  *
  * This file defines a Genkit flow that takes the full text of a medical report
- * and generates a concise summary.
+ * and generates a concise, patient-friendly summary.
  *
  * - summarizeReport - The primary exported function to be called from the client.
  */
@@ -30,21 +30,20 @@ const reportSummarizerPrompt = ai.definePrompt(
 
     // The core prompt that instructs the AI model.
     prompt: `
-      You are an AI assistant skilled in medical terminology and documentation. Your task is to
-      summarize a lengthy medical report into a structured, easy-to-read format.
+      You are an AI assistant skilled in translating complex medical documents into
+      patient-friendly language. Your task is to summarize a medical report into a
+      structured format that is clear and easy for a non-medical person to understand.
 
-      The summary should highlight the most critical information and be organized into these sections:
-      - **Key Findings**: Bullet points of the most important observations from the report.
-      - **Conclusion/Diagnosis**: The final conclusion or diagnosis mentioned in the report.
-      - **Recommendations**: Any recommended next steps, treatments, or follow-ups.
-
-      Always include a disclaimer at the end stating that this is an AI-generated summary and
-      should not replace a full review of the original report by a qualified professional.
+      - Use simple, direct language. Avoid jargon.
+      - Convert key findings into a bulleted list.
+      - State the final diagnosis clearly.
+      - Convert recommendations into a bulleted list of actionable steps.
+      - Always include a disclaimer at the end.
 
       Medical report text to summarize:
       {{{reportText}}}
 
-      Generate the summary.
+      Generate the patient-friendly summary.
     `,
   }
 );
