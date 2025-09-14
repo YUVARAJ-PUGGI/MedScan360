@@ -4,10 +4,9 @@
 import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PatientList } from "@/components/dashboard/patient-list";
-import { LocationMap } from "@/components/dashboard/location-map";
 import { PatientDetailsView } from "@/components/dashboard/patient-details-view";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { LayoutDashboard, ListChecks, Map, UserCog } from "lucide-react";
+import { LayoutDashboard, ListChecks, UserCog } from "lucide-react";
 import { usePatientData } from '@/context/PatientDataContext'; // Import context hook
 import type { PatientData } from '@/lib/schemas';
 
@@ -51,18 +50,15 @@ export default function DashboardPage() {
             <CardTitle className="text-3xl">Doctor Dashboard</CardTitle>
           </div>
           <CardDescription className="text-md">
-            Overview of registered patients, live locations (if available), and patient management tools.
+            Overview of registered patients and patient management tools.
           </CardDescription>
         </CardHeader>
       </Card>
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 gap-2">
+        <TabsList className="grid w-full grid-cols-1 md:grid-cols-1 gap-2">
           <TabsTrigger value="overview" className="flex items-center gap-2 py-3">
             <ListChecks className="h-5 w-5" /> Patient Overview
-          </TabsTrigger>
-          <TabsTrigger value="map" className="flex items-center gap-2 py-3">
-            <Map className="h-5 w-5" /> Live Map
           </TabsTrigger>
            <TabsTrigger value="details" className="flex items-center gap-2 py-3 md:hidden"> {/* Show on mobile */}
             <UserCog className="h-5 w-5" /> Patient Details
@@ -83,11 +79,6 @@ export default function DashboardPage() {
             </div>
           </div>
         </TabsContent>
-
-        <TabsContent value="map" className="mt-6">
-          {/* This instance of LocationMap will now track the simulated ambulance */}
-          <LocationMap trackAmbulance={true} mapHeight="calc(100vh - 22rem)" /> 
-        </TabsContent>
         
         <TabsContent value="details" className="mt-6 md:hidden"> {/* Show only on mobile */}
            <PatientDetailsView patient={selectedPatientForDetails} />
@@ -96,5 +87,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    
