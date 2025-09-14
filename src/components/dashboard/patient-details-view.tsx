@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { type PatientData, type MedicalNote } from '@/lib/schemas'; 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { FileDown, Edit3, UserCog, AlertTriangle, Droplet, HeartPulse, Phone, Archive, UserCircle, Ticket, Notebook, PlusCircle } from 'lucide-react';
+import { FileDown, Edit3, UserCog, AlertTriangle, Droplet, HeartPulse, Phone, Archive, UserCircle, Ticket, Notebook, PlusCircle, Shield, Activity } from 'lucide-react';
 import jsPDF from 'jspdf'; 
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
@@ -31,11 +31,13 @@ export function PatientDetailsView({ patient }: PatientDetailsViewProps) {
     doc.text(`Blood Group: ${patient.bloodGroup}`, 20, 44);
     doc.text(`Allergies: ${patient.allergies || 'None reported'}`, 20, 51);
     doc.text(`Medical Conditions: ${patient.medicalConditions || 'None reported'}`, 20, 58);
-    doc.text(`Emergency Contact: ${patient.emergencyContactName} (${patient.emergencyContactPhone})`, 20, 65);
-    doc.text("--- This is a placeholder summary report. ---", 20, 80);
+    doc.text(`Recent Surgeries: ${patient.recentSurgeries || 'None reported'}`, 20, 65);
+    doc.text(`Implanted Devices: ${patient.implantedDevices || 'None reported'}`, 20, 72);
+    doc.text(`Emergency Contact: ${patient.emergencyContactName} (${patient.emergencyContactPhone})`, 20, 79);
+    doc.text("--- This is a placeholder summary report. ---", 20, 90);
     
     if (patient.medicalHistory && patient.medicalHistory.length > 0) {
-        let yPos = 90;
+        let yPos = 100;
         doc.addPage();
         doc.text("Medical History", 20, 20);
         yPos = 30;
@@ -94,6 +96,8 @@ export function PatientDetailsView({ patient }: PatientDetailsViewProps) {
         </div>
         <InfoBlock icon={AlertTriangle} title="Allergies" value={patient.allergies || 'None reported'} isCritical={!!patient.allergies && patient.allergies !== 'None reported'} />
         <InfoBlock icon={HeartPulse} title="Medical Conditions" value={patient.medicalConditions || 'None reported'} isCritical={!!patient.medicalConditions && patient.medicalConditions !== 'None reported'} />
+        <InfoBlock icon={Activity} title="Recent Surgeries" value={patient.recentSurgeries || 'None reported'} />
+        <InfoBlock icon={Shield} title="Implanted Devices" value={patient.implantedDevices || 'None reported'} isCritical={!!patient.implantedDevices && patient.implantedDevices !== 'None reported'} />
 
         <Separator className="my-4"/>
 
@@ -165,5 +169,3 @@ const InfoBlock: React.FC<InfoBlockProps> = ({ icon: Icon, title, value, classNa
     <p className={`text-base break-words ${isCritical ? 'font-semibold' : 'text-foreground'} ${className}`}>{value}</p>
   </div>
 );
-
-    

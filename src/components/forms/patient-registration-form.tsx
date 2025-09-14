@@ -37,6 +37,8 @@ export function PatientRegistrationForm() {
       bloodGroup: '',
       allergies: '',
       medicalConditions: '',
+      recentSurgeries: '',
+      implantedDevices: '',
       emergencyContactName: '',
       emergencyContactPhone: '',
       facialImagePreview: '', // Added for storing data URL
@@ -76,6 +78,8 @@ export function PatientRegistrationForm() {
       bloodGroup: data.bloodGroup,
       allergies: data.allergies || '',
       medicalConditions: data.medicalConditions || '',
+      recentSurgeries: data.recentSurgeries || '',
+      implantedDevices: data.implantedDevices || '',
       emergencyContactName: data.emergencyContactName,
       emergencyContactPhone: data.emergencyContactPhone,
       faceImageUrl: data.facialImagePreview || 'https://placehold.co/100x100.png', // Use preview or placeholder
@@ -198,6 +202,32 @@ export function PatientRegistrationForm() {
               <FormLabel>Existing Medical Conditions</FormLabel>
               <FormControl>
                 <Textarea placeholder="e.g., Asthma, Diabetes" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="recentSurgeries"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Recent Surgeries or Hospitalizations</FormLabel>
+              <FormControl>
+                <Textarea placeholder="e.g., Appendix removal (2022)" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="implantedDevices"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Implanted Devices</FormLabel>
+              <FormControl>
+                <Textarea placeholder="e.g., Pacemaker, Stent" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

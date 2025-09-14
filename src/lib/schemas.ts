@@ -8,6 +8,8 @@ export const patientRegistrationSchema = z.object({
   bloodGroup: z.string().min(1, { message: "Blood group is required." }),
   allergies: z.string().optional(),
   medicalConditions: z.string().optional(),
+  recentSurgeries: z.string().optional(),
+  implantedDevices: z.string().optional(),
   emergencyContactName: z.string().min(2, { message: "Emergency contact name is required." }),
   emergencyContactPhone: z.string().regex(/^\+?[1-9]\d{1,14}$/, { message: "Invalid phone number format." }),
   facialImagePreview: z.string().optional(), // For storing data URL of the image
@@ -25,6 +27,8 @@ export const emergencyAdmissionSchema = z.object({
   bloodGroup: z.string(),
   allergies: z.string().optional(),
   medicalConditions: z.string().optional(),
+  recentSurgeries: z.string().optional(),
+  implantedDevices: z.string().optional(),
 });
 
 export type EmergencyAdmissionFormData = z.infer<typeof emergencyAdmissionSchema>;
@@ -44,6 +48,8 @@ export interface PatientData {
   bloodGroup: string;
   allergies: string; // Optional string
   medicalConditions: string; // Optional string
+  recentSurgeries?: string;
+  implantedDevices?: string;
   emergencyContactName: string;
   emergencyContactPhone: string;
   faceImageUrl?: string; // URL to stored image (data URL or actual URL)

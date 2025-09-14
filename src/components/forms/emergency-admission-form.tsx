@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -31,6 +32,8 @@ export function EmergencyAdmissionForm({ patientData }: EmergencyAdmissionFormPr
       bloodGroup: patientData.bloodGroup,
       allergies: patientData.allergies,
       medicalConditions: patientData.medicalConditions,
+      recentSurgeries: patientData.recentSurgeries,
+      implantedDevices: patientData.implantedDevices,
       admissionNotes: '',
       consentGiven: false,
       dateTime: new Date().toISOString(),
@@ -61,6 +64,10 @@ export function EmergencyAdmissionForm({ patientData }: EmergencyAdmissionFormPr
     doc.text(data.allergies || "None reported", 20, yPos, { maxWidth: 180 }); yPos += lineHeight * (Math.ceil((data.allergies?.length || 15) / 80) + 1); // crude line wrap
     doc.text("Medical Conditions:", 14, yPos); yPos += lineHeight;
     doc.text(data.medicalConditions || "None reported", 20, yPos, { maxWidth: 180 }); yPos += lineHeight * (Math.ceil((data.medicalConditions?.length || 15) / 80) +1);
+    doc.text("Recent Surgeries:", 14, yPos); yPos += lineHeight;
+    doc.text(data.recentSurgeries || "None reported", 20, yPos, { maxWidth: 180 }); yPos += lineHeight * (Math.ceil((data.recentSurgeries?.length || 15) / 80) +1);
+    doc.text("Implanted Devices:", 14, yPos); yPos += lineHeight;
+    doc.text(data.implantedDevices || "None reported", 20, yPos, { maxWidth: 180 }); yPos += lineHeight * (Math.ceil((data.implantedDevices?.length || 15) / 80) +1);
     
     yPos += sectionGap;
     doc.setFontSize(14);
@@ -126,6 +133,12 @@ export function EmergencyAdmissionForm({ patientData }: EmergencyAdmissionFormPr
             )}/>
              <FormField control={form.control} name="medicalConditions" render={({ field }) => (
               <FormItem><FormLabel>Medical Conditions</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+            )}/>
+             <FormField control={form.control} name="recentSurgeries" render={({ field }) => (
+              <FormItem><FormLabel>Recent Surgeries/Hospitalizations</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+            )}/>
+             <FormField control={form.control} name="implantedDevices" render={({ field }) => (
+              <FormItem><FormLabel>Implanted Devices</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
             )}/>
         </div>
         
