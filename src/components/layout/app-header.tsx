@@ -12,11 +12,11 @@ import { ThemeToggleButton } from './theme-toggle-button';
 
 const loggedOutNavItems = [
   { href: '/', label: 'Home', icon: Home },
+  { href: '/user-dashboard', label: 'MedScan AI', icon: Bot },
 ];
 
 const loggedInNavItems = [
   { href: '/dashboard', label: 'Doctor Dashboard', icon: LayoutDashboard },
-  { href: '/user-dashboard', label: 'MedScan AI', icon: Bot },
   { href: '/register', label: 'Register Patient', icon: UserPlus },
   { href: '/face-scan', label: 'Face Scan', icon: ScanFace },
 ];
