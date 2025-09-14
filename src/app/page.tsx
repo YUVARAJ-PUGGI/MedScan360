@@ -46,13 +46,13 @@ export default function HomePage() {
             Your comprehensive solution for emergency medical data management. Streamline patient care from first response to hospital admission.
           </p>
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-             <Button 
+            <Button 
               size="lg" 
               className="bg-white text-primary hover:bg-white/90 shadow-xl transform hover:scale-105 transition-transform duration-150 w-full sm:w-auto py-3 px-8"
               asChild
             >
-               <Link href="/user-dashboard">
-                <Bot className="mr-2 h-5 w-5" /> Try MedScan AI
+              <Link href="/register">
+                <UserPlus className="mr-2 h-5 w-5" /> Register New Patient
               </Link>
             </Button>
             <Button 
