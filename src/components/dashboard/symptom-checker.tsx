@@ -7,6 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Loader2, Sparkles, Stethoscope } from 'lucide-react';
 import type { PatientData } from '@/lib/schemas';
+import { analyzeSymptoms } from '@/ai/flows/symptom-checker-flow';
+import { useToast } from '@/hooks/use-toast';
 
 interface SymptomCheckerProps {
     patient: PatientData | null;
@@ -16,17 +18,29 @@ export default function SymptomChecker({ patient }: SymptomCheckerProps) {
   const [symptoms, setSymptoms] = useState('');
   const [result, setResult] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
   const handleCheckSymptoms = async () => {
     if (!symptoms) return;
     setIsLoading(true);
     setResult('');
     
-    // Simulate AI call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    setResult(`Based on the symptoms provided for ${patient?.name || 'the patient'}, possible considerations include: common cold, flu, or allergies. It is recommended to consult with the appropriate specialist. This is a placeholder response.`);
-    setIsLoading(false);
+    try {
+      const response = await analyzeSymptoms({
+        symptoms: symptoms,
+        patientName: patient?.name,
+      });
+      setResult(response.analysis);
+    } catch (error) {
+      console.error("Symptom analysis failed:", error);
+      toast({
+        title: "Analysis Failed",
+        description: "Could not get a response from the AI model. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -67,7 +81,7 @@ export default function SymptomChecker({ patient }: SymptomCheckerProps) {
                     <CardTitle className="text-lg">Analysis Result</CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
-                    <p className="text-sm">{result}</p>
+                    <p className="text-sm whitespace-pre-wrap">{result}</p>
                 </CardContent>
             </Card>
         )}
